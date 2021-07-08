@@ -39,7 +39,7 @@ public class driveRemoteRosu extends LinearOpMode {
     public static double NEW_D = 11;
     public static double NEW_F = 15.6;
     public double HIGH_VELO = 1480;
-    public double POWERSHOT_VELO = 1300;
+    public double POWERSHOT_VELO = 1250;
 
     // Define 2 states, drive control or automatic control
     enum Mode {
@@ -59,7 +59,7 @@ public class driveRemoteRosu extends LinearOpMode {
 
     SampleMecanumDrive drive;
 
-    Vector2d towerVector = new Vector2d(125, 31);
+    Vector2d towerVector = new Vector2d(125, 26);
 
     @Override
     public void runOpMode() {

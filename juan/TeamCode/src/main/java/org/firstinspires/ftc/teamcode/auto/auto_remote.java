@@ -150,9 +150,9 @@ public class auto_remote extends LinearOpMode
 
 
         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(-55, -7.5))
+                .strafeTo(new Vector2d(-55, -7))
                 .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
+                    finalOuttake.setVelocity(POWERSHOT_VELO+25);
                 })
                 .build();
 
@@ -160,11 +160,12 @@ public class auto_remote extends LinearOpMode
                 .strafeTo(new Vector2d(-55, 3.25))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
+                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
         Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                .strafeTo(new Vector2d(-55, 11.5))
+                .strafeTo(new Vector2d(-55, 11.25))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
                 })
@@ -194,7 +195,7 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectory8 = drive.trajectoryBuilder(trajectory7.end(), true)
-                .splineToSplineHeading(new Pose2d(-114.5, 39, Math.toRadians(-96)), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-114, 39, Math.toRadians(-90)), Math.toRadians(0))
                 .addTemporalMarker(0.3, () -> {
                     wob_cleste.close();
                     wob_cleste.open();
@@ -208,16 +209,17 @@ public class auto_remote extends LinearOpMode
                 .strafeTo(new Vector2d(-119, -25))
                 .build();
 
-        Trajectory trajectory10 = drive.trajectoryBuilder(trajectory9.end(), true)
-                .splineToSplineHeading(new Pose2d(-46, 22.5, Math.toRadians(0)), Math.toRadians(0))
-                .addTemporalMarker(0.15, () -> {
+        Trajectory trajectory10 = drive.trajectoryBuilder(trajectory8.end())
+                .splineToConstantHeading((new Vector2d(-113, -20)), Math.toRadians(0))
+                .splineTo(new Vector2d(-46, 22.5), Math.toRadians(92))
+                .addTemporalMarker(2.0, () -> {
                     plug.up();
                     finalIntake.setPower(0);
                     finalOuttake.setVelocity(0);
                     out1.close();
                     out2.close();
                 })
-                .addTemporalMarker(0.4, () -> {
+                .addTemporalMarker(2.25, () -> {
                     finalOuttake.setVelocity(HIGH_VELO);
                 })
                 .build();
@@ -259,7 +261,7 @@ public class auto_remote extends LinearOpMode
          */
 
         Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(-55, 0.5))
+                .strafeTo(new Vector2d(-52.5, -0.5))
                 .addTemporalMarker(0.5, () -> {
                     finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
@@ -279,8 +281,9 @@ public class auto_remote extends LinearOpMode
                 })
                 .build();
 
-        Trajectory trajectoryy44 = drive.trajectoryBuilder(trajectoryy4.end(), true)
+        Trajectory trajectoryy44 = drive.trajectoryBuilder(trajectoryy4.end())
                 .splineToConstantHeading(new Vector2d(-113.5, -21), Math.toRadians(0))
+                .splineTo(new Vector2d(-90, 10), Math.toRadians(180))
                 .addTemporalMarker(0.01, () -> {
                     finalOuttake.setVelocity(-500);
                     finalIntake.setPower(0.95);
@@ -305,8 +308,8 @@ public class auto_remote extends LinearOpMode
                     finalOuttake.setVelocity(-500);
                     finalIntake.setPower(0.95);
                 })
-                .splineToSplineHeading(new Pose2d(-51, 20.5, Math.toRadians(0)), Math.toRadians(-90))
-                .splineToConstantHeading(new Vector2d(-28, 20.5), Math.toRadians(0),
+                .splineToSplineHeading(new Pose2d(-51, 21.5, Math.toRadians(0)), Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(-28, 21.5), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -318,7 +321,8 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectoryy55 = drive.trajectoryBuilder(trajectoryy5.end())
-                .strafeTo(new Vector2d(-22, 18))
+                .splineToConstantHeading(new Vector2d(-15, 6), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-13.5, 19.25), Math.toRadians(0))
                 .build();
 
 
@@ -338,7 +342,7 @@ public class auto_remote extends LinearOpMode
 
 
         Trajectory trajectoryyy1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(-55, 0.5))
+                .strafeTo(new Vector2d(-52.5, -0.5))
                 .addTemporalMarker(0.5, () -> {
                     finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
@@ -346,7 +350,7 @@ public class auto_remote extends LinearOpMode
 
 
         Trajectory trajectoryyy2 = drive.trajectoryBuilder(trajectoryyy1.end().plus(new Pose2d(0, 0, Math.toRadians(17.5))), true)
-                .splineToSplineHeading(new Pose2d(-104, 34.5, Math.toRadians(30)), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-106, 35, Math.toRadians(30)), Math.toRadians(0))
                 .addTemporalMarker(1.6, () -> {
                     wob_brat.down();
                     outg.open();
@@ -355,8 +359,8 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy3 = drive.trajectoryBuilder(trajectoryyy2.end())
-                .splineToSplineHeading(new Pose2d(-52, 19, Math.toRadians(0)), Math.toRadians(-30))
-                .splineToConstantHeading(new Vector2d(-28, 19), Math.toRadians(0),
+                .splineToSplineHeading(new Pose2d(-52, 21.75, Math.toRadians(0)), Math.toRadians(-30))
+                .splineToConstantHeading(new Vector2d(-38, 21.75), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -376,7 +380,7 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy4 = drive.trajectoryBuilder(trajectoryyy3.end().plus(new Pose2d(0, 0, Math.toRadians(5))))
-                .splineToConstantHeading(new Vector2d(-15, 19), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-15, 20), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -385,12 +389,12 @@ public class auto_remote extends LinearOpMode
                         ),
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToConstantHeading(new Vector2d(-15, 21), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-11, 21), Math.toRadians(0))
                 .addTemporalMarker(0.01, () -> {
                     finalIntake.setPower(0.95);
                     finalOuttake.setVelocity(-200);
                 })
-                .addTemporalMarker(1.9, () -> {
+                .addTemporalMarker(1.8, () -> {
                     finalIntake.setPower(0);
                     out1.close();
                     out2.close();
@@ -418,8 +422,8 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy7 = drive.trajectoryBuilder(trajectoryyy6.end())
-                .strafeTo(new Vector2d(-115, 30))
-                .addTemporalMarker(0.1, () -> {
+                .strafeTo(new Vector2d(-118, 30))
+                .addTemporalMarker(0.2, () -> {
                     finalOuttake.setVelocity(0);
                     outg.open();
                 })
@@ -431,7 +435,7 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy8 = drive.trajectoryBuilder(trajectoryyy7.end())
-                .strafeTo(new Vector2d(-77, 30))
+                .strafeTo(new Vector2d(-70, 30))
                 .build();
 
 
@@ -560,7 +564,7 @@ public class auto_remote extends LinearOpMode
                 wob_brat.mid();
 
                 drive.followTrajectory(trajectory8);
-                drive.followTrajectory(trajectory9);
+                //drive.followTrajectory(trajectory9);
                 drive.followTrajectory(trajectory10);
                 outg.close();
                 sleep(350);
@@ -585,10 +589,10 @@ public class auto_remote extends LinearOpMode
 
                 outg.cerc1();
                 sleep(340);
-                drive.turn(Math.toRadians(-10.5));
+                drive.turn(Math.toRadians(-10));
                 outg.cerc2();
                 sleep(340);
-                drive.turn(Math.toRadians(18.75));
+                drive.turn(Math.toRadians(19));
                 outg.close();
                 sleep(340);
 
@@ -617,7 +621,7 @@ public class auto_remote extends LinearOpMode
                 sleep(400);
                 drive.followTrajectory(trajectoryy8);
                 wob_cleste.open();
-                sleep(350);
+                sleep(450);
                 wob_brat.up();
                 drive.followTrajectory(trajectoryy9);
             }
@@ -626,13 +630,13 @@ public class auto_remote extends LinearOpMode
             {
                 drive.followTrajectory(trajectoryyy1);
                 outg.cerc1();
-                sleep(330);
-                drive.turn(Math.toRadians(-10.5));
+                sleep(340);
+                drive.turn(Math.toRadians(-10));
                 outg.cerc2();
-                sleep(330);
-                drive.turn(Math.toRadians(20));
+                sleep(340);
+                drive.turn(Math.toRadians(19));
                 outg.close();
-                sleep(330);
+                sleep(340);
 
                 drive.followTrajectory(trajectoryyy2);
                 wob_cleste.open();
@@ -658,10 +662,18 @@ public class auto_remote extends LinearOpMode
                 wob_cleste.close();
                 sleep(250);
                 drive.followTrajectory(trajectoryyy6);
+                intake.setPower(0);
+                out1.close();
+                out2.close();
+                sleep(750);
                 outg.close();
-                sleep(800);
+                sleep(250);
+                outg.open();
+                sleep(100);
+                outg.close();
+                sleep(500);
                 drive.followTrajectory(trajectoryyy7);
-                drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                //drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 drive.followTrajectory(trajectoryyy8);
             }
 
