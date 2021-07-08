@@ -380,7 +380,7 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy4 = drive.trajectoryBuilder(trajectoryyy3.end().plus(new Pose2d(0, 0, Math.toRadians(5))))
-                .splineToConstantHeading(new Vector2d(-15, 20), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-16.5, 20), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -389,13 +389,13 @@ public class auto_remote extends LinearOpMode
                         ),
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToConstantHeading(new Vector2d(-14, 6), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-11, 19.25), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-16.5, 6), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-10.5, 19.75), Math.toRadians(0))
                 .addTemporalMarker(0.01, () -> {
                     finalIntake.setPower(0.95);
                     finalOuttake.setVelocity(-200);
                 })
-                .addTemporalMarker(1.8, () -> {
+                .addTemporalMarker(1.9, () -> {
                     finalIntake.setPower(0);
                     out1.close();
                     out2.close();
@@ -412,13 +412,12 @@ public class auto_remote extends LinearOpMode
                     finalIntake.setPower(0);
                 })
                 .build();
-
          */
 
         Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy4.end())
-                .strafeTo(new Vector2d(-50, 30))
+                .strafeTo(new Vector2d(-50, 33))
                 .addTemporalMarker(0.02, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                    finalOuttake.setVelocity(HIGH_VELO+30);
                 })
                 .build();
 
@@ -634,8 +633,8 @@ public class auto_remote extends LinearOpMode
                 sleep(340);
                 drive.turn(Math.toRadians(-10));
                 outg.cerc2();
-                sleep(340);
-                drive.turn(Math.toRadians(19));
+                sleep(350);
+                drive.turn(Math.toRadians(19.75));
                 outg.close();
                 sleep(340);
 
@@ -645,7 +644,7 @@ public class auto_remote extends LinearOpMode
                 out1.close();
                 out2.close();
                 intake.setPower(0);
-                outtake.setVelocity(HIGH_VELO);
+                outtake.setVelocity(HIGH_VELO-65);
                 drive.turn(Math.toRadians(-5));
                 sleep(1200);
                 outg.close();
