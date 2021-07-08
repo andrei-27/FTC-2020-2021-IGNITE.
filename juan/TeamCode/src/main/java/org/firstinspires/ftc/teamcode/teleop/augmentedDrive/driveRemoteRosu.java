@@ -180,7 +180,7 @@ public class driveRemoteRosu extends LinearOpMode {
                         outg.open();
                         drive.followTrajectory(trajectory3);
                         outg.close();
-                        sleep(950);
+                        sleep(600);
                         outg.open();
                         sleep(250);
                         out1.open();

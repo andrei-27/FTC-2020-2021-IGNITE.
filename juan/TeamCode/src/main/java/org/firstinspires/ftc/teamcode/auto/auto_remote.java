@@ -223,7 +223,7 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectory11 = drive.trajectoryBuilder(trajectory10.end())
-                .strafeTo(new Vector2d(-60, 23))
+                .strafeTo(new Vector2d(-67, 23))
                 .build();
 
 
@@ -321,26 +321,6 @@ public class auto_remote extends LinearOpMode
                 .strafeTo(new Vector2d(-22, 18))
                 .build();
 
-        /*
-
-
-        Trajectory trajectoryy6 = drive.trajectoryBuilder(trajectoryy5.end())
-                .strafeTo(new Vector2d(-15.5, 12))
-                .addTemporalMarker(0.1, () -> {
-                    outg.open();
-                    finalOuttake.setVelocity(0);
-                })
-                .build();
-
-        Trajectory trajectoryy7 = drive.trajectoryBuilder(trajectoryy6.end())
-                .strafeTo(new Vector2d(-15.5, 25))
-                .addTemporalMarker(0.1, () -> {
-                    //out1.open();
-                    //out2.open();
-                })
-                .build();
-
-         */
 
         Trajectory trajectoryy8 = drive.trajectoryBuilder(trajectoryy55.end())
                 .strafeTo(new Vector2d(-89, 2))
@@ -451,7 +431,7 @@ public class auto_remote extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy8 = drive.trajectoryBuilder(trajectoryyy7.end())
-                .strafeTo(new Vector2d(-50, 30))
+                .strafeTo(new Vector2d(-77, 30))
                 .build();
 
 
@@ -585,7 +565,7 @@ public class auto_remote extends LinearOpMode
                 outg.close();
                 sleep(350);
                 drive.followTrajectory(trajectory11);
-
+                outg.open();
             }
 
             else if(pipeline.zona == 1)
@@ -619,27 +599,26 @@ public class auto_remote extends LinearOpMode
                 drive.followTrajectory(trajectoryy5);
                 outtake.setVelocity(HIGH_VELO-100);
                 intake.setPower(0);
-                sleep(1000);
                 out1.close();
                 out2.close();
-                sleep(250);
+                sleep(750);
                 outg.close();
-                sleep(900);
+                sleep(250);
+                outg.open();
+                sleep(100);
+                outg.close();
+                sleep(750);
 
-                /*
-                drive.followTrajectory(trajectoryy6);
-                drive.followTrajectory(trajectoryy7);
 
-                 */
                 drive.followTrajectory(trajectoryy55);
+                wob_cleste.close();
                 outg.close();
                 outtake.setVelocity(0);
-                wob_cleste.close();
-                sleep(450);
+                sleep(400);
                 drive.followTrajectory(trajectoryy8);
                 wob_cleste.open();
                 sleep(350);
-                wob_brat.mid();
+                wob_brat.up();
                 drive.followTrajectory(trajectoryy9);
             }
 
