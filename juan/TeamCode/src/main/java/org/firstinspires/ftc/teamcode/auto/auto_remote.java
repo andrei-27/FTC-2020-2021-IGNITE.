@@ -389,7 +389,8 @@ public class auto_remote extends LinearOpMode
                         ),
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToConstantHeading(new Vector2d(-11, 21), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-14, 6), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-11, 19.25), Math.toRadians(0))
                 .addTemporalMarker(0.01, () -> {
                     finalIntake.setPower(0.95);
                     finalOuttake.setVelocity(-200);

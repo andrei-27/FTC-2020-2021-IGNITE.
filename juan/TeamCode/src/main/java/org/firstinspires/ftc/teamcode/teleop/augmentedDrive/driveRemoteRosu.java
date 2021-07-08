@@ -153,7 +153,7 @@ public class driveRemoteRosu extends LinearOpMode {
                         DcMotorEx finalOuttake = outtake;
 
                         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(63.5, 0, 3.1415))
-                                .strafeTo(new Vector2d(56.5, 41.2))
+                                .strafeTo(new Vector2d(56.5, 39.5))
                                 .addTemporalMarker(0.15, () -> {
                                     finalOuttake.setVelocity(POWERSHOT_VELO);
                                 })
