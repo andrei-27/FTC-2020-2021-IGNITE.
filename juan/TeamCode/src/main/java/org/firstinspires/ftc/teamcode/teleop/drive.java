@@ -69,8 +69,7 @@ public class drive extends LinearOpMode {
     Boolean cont_glisiera = FALSE;
     Boolean slow_mode = FALSE;
 
-
-
+    //pula mea
 
     public static double NEW_P = 38;
     public static double NEW_I = 14;
