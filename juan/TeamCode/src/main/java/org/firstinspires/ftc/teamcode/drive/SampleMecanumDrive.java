@@ -120,7 +120,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         ));
         accelConstraint = new ProfileAccelerationConstraint(MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.3, 0.3, Math.toRadians(1.0)), 0.6);
+                new Pose2d(0.3, 0.3, Math.toRadians(0.7)), 0.5);
 
         poseHistory = new LinkedList<>();
 

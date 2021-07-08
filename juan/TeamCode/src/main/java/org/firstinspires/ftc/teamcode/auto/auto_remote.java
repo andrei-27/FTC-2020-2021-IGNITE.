@@ -584,13 +584,13 @@ public class auto_remote extends LinearOpMode
                  */
 
                 outg.cerc1();
-                sleep(330);
+                sleep(340);
                 drive.turn(Math.toRadians(-10.5));
                 outg.cerc2();
-                sleep(330);
+                sleep(340);
                 drive.turn(Math.toRadians(18.75));
                 outg.close();
-                sleep(330);
+                sleep(340);
 
 
                 drive.followTrajectory(trajectoryy4);
@@ -667,6 +667,7 @@ public class auto_remote extends LinearOpMode
 
             out1.close();
             out2.close();
+            outg.open();
             stop();
 
         }
@@ -697,7 +698,7 @@ public class auto_remote extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(260,50);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(260,40);
 
         static final int REGION_WIDTH = 35;
         static final int REGION_HEIGHT = 30;
