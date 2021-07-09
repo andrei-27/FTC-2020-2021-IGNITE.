@@ -60,7 +60,7 @@ import java.util.List;
  * is explained below.
  */
 @Autonomous
-//@Disabled
+@Disabled
 public class auto2 extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";

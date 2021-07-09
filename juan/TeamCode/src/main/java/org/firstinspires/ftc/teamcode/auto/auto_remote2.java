@@ -13,12 +13,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.servo_glisiera;
@@ -27,15 +24,6 @@ import org.firstinspires.ftc.teamcode.hardware.servo_outtake2;
 import org.firstinspires.ftc.teamcode.hardware.servo_plug;
 import org.firstinspires.ftc.teamcode.hardware.servo_wobble1;
 import org.firstinspires.ftc.teamcode.hardware.servo_wobble2;
-
-
-import android.graphics.ColorSpace;
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -50,15 +38,15 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.Arrays;
 
 @Autonomous
-public class auto_remote extends LinearOpMode
+public class auto_remote2 extends LinearOpMode
 {
 
     public static double NEW_P = 61;
     public static double NEW_I = 0.7;
     public static double NEW_D = 11;
     public static double NEW_F = 15.6;
-    public double HIGH_VELO = 1480;
-    public double POWERSHOT_VELO = 1180;
+    public double HIGH_VELO = 1455;
+    public double POWERSHOT_VELO = 1210;
 
     public static double zero = 128;
     public static double unu = 136;
