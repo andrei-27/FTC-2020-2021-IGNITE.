@@ -89,6 +89,7 @@ import static java.lang.Boolean.FALSE;
 
 
 @TeleOp
+@Disabled
 public class driveAlbastru extends LinearOpMode {
 
 

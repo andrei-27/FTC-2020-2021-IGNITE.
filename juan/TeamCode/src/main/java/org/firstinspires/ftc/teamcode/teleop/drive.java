@@ -55,7 +55,7 @@ import static java.lang.Boolean.TRUE;
 
 
 @TeleOp
-//@Disabled
+@Disabled
 public class drive extends LinearOpMode {
 
     init_robot conserva = new init_robot();

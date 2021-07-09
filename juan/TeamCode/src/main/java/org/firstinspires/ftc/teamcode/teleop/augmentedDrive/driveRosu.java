@@ -91,6 +91,7 @@ import static java.lang.Boolean.FALSE;
 
 
 @TeleOp
+@Disabled
 public class driveRosu extends LinearOpMode {
 
 
