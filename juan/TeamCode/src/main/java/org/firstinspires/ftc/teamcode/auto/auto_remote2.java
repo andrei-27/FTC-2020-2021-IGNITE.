@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstra
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -38,6 +39,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.Arrays;
 
 @Autonomous
+@Disabled
 public class auto_remote2 extends LinearOpMode
 {
 
@@ -140,7 +142,7 @@ public class auto_remote2 extends LinearOpMode
         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d())
                 .strafeTo(new Vector2d(-55, -7))
                 .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO+25);
+                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
@@ -199,7 +201,7 @@ public class auto_remote2 extends LinearOpMode
 
         Trajectory trajectory10 = drive.trajectoryBuilder(trajectory8.end())
                 .splineToConstantHeading((new Vector2d(-113, -20)), Math.toRadians(0))
-                .splineTo(new Vector2d(-46, 22.5), Math.toRadians(92))
+                .splineTo(new Vector2d(-46, 26), Math.toRadians(88.5))
                 .addTemporalMarker(2.0, () -> {
                     plug.up();
                     finalIntake.setPower(0);
@@ -208,7 +210,7 @@ public class auto_remote2 extends LinearOpMode
                     out2.close();
                 })
                 .addTemporalMarker(2.25, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                    finalOuttake.setVelocity(HIGH_VELO-30);
                 })
                 .build();
 
@@ -285,7 +287,7 @@ public class auto_remote2 extends LinearOpMode
                     finalIntake.setPower(0.95);
                 })
                 .splineToSplineHeading(new Pose2d(-51, 21.5, Math.toRadians(0)), Math.toRadians(-90))
-                .splineToConstantHeading(new Vector2d(-28, 21.5), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-32, 22.75), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -298,7 +300,7 @@ public class auto_remote2 extends LinearOpMode
 
         Trajectory trajectoryy55 = drive.trajectoryBuilder(trajectoryy5.end())
                 .splineToConstantHeading(new Vector2d(-15, 6), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-13.5, 19.25), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-12.75, 19), Math.toRadians(0))
                 .build();
 
 
@@ -326,7 +328,7 @@ public class auto_remote2 extends LinearOpMode
 
 
         Trajectory trajectoryyy2 = drive.trajectoryBuilder(trajectoryyy1.end().plus(new Pose2d(0, 0, Math.toRadians(17.5))), true)
-                .splineToSplineHeading(new Pose2d(-106, 35, Math.toRadians(30)), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-112, 35, Math.toRadians(30)), Math.toRadians(0))
                 .addTemporalMarker(1.6, () -> {
                     wob_brat.down();
                     outg.open();
@@ -336,7 +338,7 @@ public class auto_remote2 extends LinearOpMode
 
         Trajectory trajectoryyy3 = drive.trajectoryBuilder(trajectoryyy2.end())
                 .splineToSplineHeading(new Pose2d(-52, 21.75, Math.toRadians(0)), Math.toRadians(-30))
-                .splineToConstantHeading(new Vector2d(-38, 21.75), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-40.5, 21.75), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -355,9 +357,10 @@ public class auto_remote2 extends LinearOpMode
                 })
                 .build();
 
-        Trajectory trajectoryyy4 = drive.trajectoryBuilder(trajectoryyy3.end().plus(new Pose2d(0, 0, Math.toRadians(5))))
-                .splineToConstantHeading(new Vector2d(-17.5, 20), Math.toRadians(0),
+        Trajectory trajectoryyy4 = drive.trajectoryBuilder(trajectoryyy3.end())
+                .splineToConstantHeading(new Vector2d(-23.25, 20), Math.toRadians(0),
                         new MinVelocityConstraint(
+
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
                                         new MecanumVelocityConstraint(11, DriveConstants.TRACK_WIDTH)
@@ -365,16 +368,16 @@ public class auto_remote2 extends LinearOpMode
                         ),
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToConstantHeading(new Vector2d(-17.5, 6), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-19, 10), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
-                                        new MecanumVelocityConstraint(11, DriveConstants.TRACK_WIDTH)
+                                        new MecanumVelocityConstraint(30, DriveConstants.TRACK_WIDTH)
                                 )
                         ),
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToConstantHeading(new Vector2d(-10.5, 19.75), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-10.25, 20.75), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -387,7 +390,7 @@ public class auto_remote2 extends LinearOpMode
                     finalIntake.setPower(0.95);
                     finalOuttake.setVelocity(-200);
                 })
-                .addTemporalMarker(1.9, () -> {
+                .addTemporalMarker(2.05, () -> {
                     finalIntake.setPower(0);
                     out1.close();
                     out2.close();
@@ -396,9 +399,9 @@ public class auto_remote2 extends LinearOpMode
 
 
         Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy4.end())
-                .strafeTo(new Vector2d(-50, 33))
+                .strafeTo(new Vector2d(-47, 27.5))
                 .addTemporalMarker(0.02, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO+30);
+                    finalOuttake.setVelocity(HIGH_VELO+50);
                 })
                 .build();
 
@@ -582,7 +585,7 @@ public class auto_remote2 extends LinearOpMode
                 wob_cleste.open();
                 sleep(200);
                 drive.followTrajectory(trajectoryy5);
-                outtake.setVelocity(HIGH_VELO-100);
+                outtake.setVelocity(HIGH_VELO-60);
                 intake.setPower(0);
                 out1.close();
                 out2.close();
@@ -625,11 +628,11 @@ public class auto_remote2 extends LinearOpMode
                 out1.close();
                 out2.close();
                 intake.setPower(0);
-                outtake.setVelocity(HIGH_VELO-65);
-                drive.turn(Math.toRadians(-5));
-                sleep(1200);
+                outtake.setVelocity(HIGH_VELO-40);
+                ///drive.turn(Math.toRadians(-5));
+                sleep(900);
                 outg.close();
-                sleep(800);
+                sleep(700);
                 outtake.setVelocity(0);
                 outg.open();
                 wob_brat.down();

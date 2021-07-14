@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class servo_plug {
     public Servo servo = null;
 
-    public static double SERVO_DOWN = 0.62;
+    public static double SERVO_DOWN = 0.63;
 
     public static double SERVO_UP = 0.13;
 

@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.util.Angle;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,6 +24,7 @@ import static java.lang.Boolean.FALSE;
 
 
 @TeleOp
+@Disabled
 public class driveRemoteRosu extends LinearOpMode {
 
 
@@ -35,7 +37,7 @@ public class driveRemoteRosu extends LinearOpMode {
 
 
     public static double NEW_P = 61;
-    public static double NEW_I = 0.7;
+    public static double NEW_I = 12;
     public static double NEW_D = 11;
     public static double NEW_F = 15.6;
     public double HIGH_VELO = 1480;
@@ -289,6 +291,7 @@ public class driveRemoteRosu extends LinearOpMode {
                     }
                     break;
             }
+            telemetry.addData("velocity", outtake.getVelocity());
             telemetry.addData("outtake velocity", HIGH_VELO);
             telemetry.addData("mode", currentMode);
             telemetry.addData("x", poseEstimate.getX());
