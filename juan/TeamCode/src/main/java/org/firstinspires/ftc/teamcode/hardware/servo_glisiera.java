@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class servo_glisiera {
     public Servo servo = null;
 
-    public static double SERVO_RELEASEE = 0;
-    public static double SERVO_POZ1 = 0.39;
-    public static double SERVO_POZ2 = 0.49;
-    public static double SERVO_CLOSEE = 0.64;
+    public static double SERVO_RELEASEE = 0.66;
+    public static double SERVO_POZ1 = 0.59;
+    public static double SERVO_POZ2 = 0.50;
+    public static double SERVO_CLOSEE = 0.39;
 
     public servo_glisiera(HardwareMap hwMap) {
         servo = hwMap.get(Servo.class, "servoGlisiera");

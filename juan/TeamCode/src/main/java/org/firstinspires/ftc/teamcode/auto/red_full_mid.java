@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.hardware.servo_glisiera;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake1;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake2;
 import org.firstinspires.ftc.teamcode.hardware.servo_plug;
+import org.firstinspires.ftc.teamcode.hardware.servo_intake;
 import org.firstinspires.ftc.teamcode.hardware.servo_wobble1;
 import org.firstinspires.ftc.teamcode.hardware.servo_wobble2;
 import org.opencv.core.Core;
@@ -39,16 +40,12 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.Arrays;
 
 @Autonomous
-@Disabled
-public class auto_remote extends LinearOpMode
+//@Disabled
+public class red_full_mid extends LinearOpMode
 {
 
-    public static double NEW_P = 65;
-    public static double NEW_I = 0.7;
-    public static double NEW_D = 16;
-    public static double NEW_F = 15.6;
-    public double HIGH_VELO = 1420;
-    public double POWERSHOT_VELO = 1265;
+    public double HIGH_VELO = 1560;
+    public double POWERSHOT_VELO = 1380;
 
     public static double zero = 128;
     public static double unu = 136;
@@ -98,6 +95,8 @@ public class auto_remote extends LinearOpMode
         servo_wobble2 wob_cleste = new servo_wobble2(hardwareMap);
         servo_glisiera outg = new servo_glisiera(hardwareMap);
         servo_plug plug = new servo_plug(hardwareMap);
+        servo_intake serv_int = new servo_intake(hardwareMap);
+        serv_int.down();
         plug.up();
         out1.close();
         out2.close();
@@ -116,22 +115,15 @@ public class auto_remote extends LinearOpMode
 
 
 
-        DcMotorEx outtake = null; // Intake motor
-        outtake = (DcMotorEx)hardwareMap.get(DcMotor.class, "outtake");
+        DcMotorEx motorOuttake1 = hardwareMap.get(DcMotorEx.class, "outtake1");
+        DcMotorEx motorOuttake2 = hardwareMap.get(DcMotorEx.class, "outtake2");
 
-        PIDFCoefficients pidOrig = outtake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // change coefficients using methods included with DcMotorEx class.
-        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidNew);
-
-        // re-read coefficients and verify change.
-        PIDCoefficients pidModified = outtake.getPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorOuttake1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorOuttake2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        DcMotorEx finalOuttake = outtake;
         DcMotor finalIntake = intake;
 
 
@@ -139,84 +131,98 @@ public class auto_remote extends LinearOpMode
         // *****************************  ZERO RINGS  ***************************** \\
 
 
-        Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(-55, -4))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO+25);
+        Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(), true)
+                .splineTo(new Vector2d(-53.5, -2), Math.toRadians(180))
+                .addTemporalMarker(1.2, () -> {
+                    motorOuttake1.setVelocity(POWERSHOT_VELO);
+                    motorOuttake2.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
-                .strafeTo(new Vector2d(-55, 8))
-                .addTemporalMarker(0.1, () -> {
-                    outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
-                })
+        Trajectory trajectory11 = drive.trajectoryBuilder(trajectory1.end(), true)
+                .lineToSplineHeading(new Pose2d(-54, -2.5, Math.toRadians(8)))
                 .build();
 
-        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                .strafeTo(new Vector2d(-55, 15.15))
-                .addTemporalMarker(0.1, () -> {
-                    outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO+25);
-                })
+        Trajectory trajectory111 = drive.trajectoryBuilder(trajectory11.end(), true)
+                .lineToSplineHeading(new Pose2d(-54.5, -3, Math.toRadians(-8)))
                 .build();
 
-        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end())
-                .strafeTo(new Vector2d(-75.5, 36))
+
+        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory111.end())
+                .lineToSplineHeading(new Pose2d(-120, -8, Math.toRadians(130)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
-                .addTemporalMarker(1.5, () -> {
-                    wob_brat.down();
+                .addTemporalMarker(0.55, () -> {
                     out1.open();
                     out2.open();
-                })
-                .build();
-
-
-        Trajectory trajectory6 = drive.trajectoryBuilder(trajectory4.end())
-                .splineToSplineHeading(new Pose2d(-22.25, 26, Math.toRadians(-45)), Math.toRadians(0))
-                .build();
-
-
-        Trajectory trajectory7 = drive.trajectoryBuilder(trajectory6.end(), true)
-                .splineToSplineHeading(new Pose2d(-70, 26, Math.toRadians(0)), Math.toRadians(0))
-                .build();
-
-        Trajectory trajectory8 = drive.trajectoryBuilder(trajectory7.end(), true)
-                .splineToSplineHeading(new Pose2d(-114, 39, Math.toRadians(-90)), Math.toRadians(0))
-                .addTemporalMarker(0.3, () -> {
-                    wob_cleste.close();
-                    wob_cleste.open();
                     plug.down();
-                    finalIntake.setPower(0.88);
-                    finalOuttake.setVelocity(-500);
+                })
+                .addTemporalMarker(0.95, () -> {
+                    serv_int.up();
                 })
                 .build();
 
-        Trajectory trajectory9 = drive.trajectoryBuilder(trajectory8.end())
-                .strafeTo(new Vector2d(-119, -25))
-                .build();
 
-        Trajectory trajectory10 = drive.trajectoryBuilder(trajectory8.end())
-                .splineToConstantHeading((new Vector2d(-108.5, -20)), Math.toRadians(0))
-                .splineTo(new Vector2d(-46, 26), Math.toRadians(88.5))
-                .addTemporalMarker(2.0, () -> {
-                    plug.up();
+        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
+                .lineToSplineHeading(new Pose2d(-119, 22.5, Math.toRadians(140)))
+                .splineTo(new Vector2d(-63.5, 34), Math.toRadians(0))
+                .addTemporalMarker(0.01, () -> {
+                    finalIntake.setPower(0.93);
+                    motorOuttake1.setVelocity(-300);
+                    motorOuttake2.setVelocity(-300);
+                })
+                .addTemporalMarker(2.45, () -> {
                     finalIntake.setPower(0);
-                    finalOuttake.setVelocity(0);
                     out1.close();
                     out2.close();
+                    plug.up();
                 })
-                .addTemporalMarker(3.6, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO-30);
+                .addTemporalMarker(3.8, () -> {
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
+                    wob_brat.down();
                 })
                 .build();
 
-        Trajectory trajectory11 = drive.trajectoryBuilder(trajectory10.end())
-                .strafeTo(new Vector2d(-67, 23))
+
+        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end(), true)
+                .lineToSplineHeading(new Pose2d(-55, 17.5, Math.toRadians(0)))
+                .addTemporalMarker(0.3, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
+                    wob_brat.up();
+                    wob_cleste.close();
+                })
+                .build();
+
+        Trajectory trajectory5 = drive.trajectoryBuilder(trajectory4.end())
+                .lineToSplineHeading(new Pose2d(-24, 26, Math.toRadians(-40)))
+                .addTemporalMarker(0.2, () -> {
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
+                    wob_brat.down();
+                    wob_cleste.open();
+                    outg.open();
+                })
+                .addTemporalMarker(0.75, () -> {
+                    //out1.open();
+                    //out2.open();
+                })
+                .build();
+
+        Trajectory trajectory6 = drive.trajectoryBuilder(trajectory5.end(), true)
+                .splineTo(new Vector2d(-72.5, 33), Math.toRadians(205))
+                .build();
+
+        Trajectory trajectory7 = drive.trajectoryBuilder(trajectory6.end())
+                .lineToSplineHeading(new Pose2d(-74, -5, Math.toRadians(0)))
+                .addTemporalMarker(0.2, () -> {
+                    wob_brat.up();
+                    wob_cleste.close();
+                })
                 .build();
 
 
@@ -226,102 +232,136 @@ public class auto_remote extends LinearOpMode
         // *****************************  ONE RING  ***************************** \\
 
 
-        /*
-
-        Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(-53, -7.5))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
+        Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d(), true)
+                .splineTo(new Vector2d(-53.5, -2), Math.toRadians(180))
+                .addTemporalMarker(1.2, () -> {
+                    motorOuttake1.setVelocity(POWERSHOT_VELO);
+                    motorOuttake2.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-        Trajectory trajectoryy2 = drive.trajectoryBuilder(trajectoryy1.end())
-                .strafeTo(new Vector2d(-53, 3.25))
+        Trajectory trajectoryy11 = drive.trajectoryBuilder(trajectoryy1.end(), true)
+                .lineToSplineHeading(new Pose2d(-54, -2.5, Math.toRadians(8)))
+                .build();
+
+        Trajectory trajectoryy111 = drive.trajectoryBuilder(trajectoryy11.end(), true)
+                .lineToSplineHeading(new Pose2d(-54.5, -3, Math.toRadians(-8)))
+                .build();
+
+
+        Trajectory trajectoryy2 = drive.trajectoryBuilder(trajectoryy111.end())
+                .lineToSplineHeading(new Pose2d(-120, -8, Math.toRadians(130)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
-                .build();
-
-        Trajectory trajectoryy3 = drive.trajectoryBuilder(trajectoryy2.end())
-                .strafeTo(new Vector2d(-53, 11.5))
-                .addTemporalMarker(0.1, () -> {
-                    outg.open();
-                })
-                .build();
-
-         */
-
-        Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(-52.5, 1.5))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
-                })
-                .build();
-
-        Trajectory trajectoryy4 = drive.trajectoryBuilder(trajectoryy1.end().plus(new Pose2d(0, 0, Math.toRadians(10))), true)
-                .splineToSplineHeading(new Pose2d(-113, 21, Math.toRadians(-93)), Math.toRadians(0))
-                .addTemporalMarker(0.2, () -> {
-                    outg.open();
-                    finalOuttake.setVelocity(0);
-                })
-                .addTemporalMarker(1.8, () -> {
-                    wob_brat.down();
+                .addTemporalMarker(0.55, () -> {
                     out1.open();
                     out2.open();
                     plug.down();
                 })
+                .addTemporalMarker(0.95, () -> {
+                    serv_int.up();
+                })
                 .build();
 
-        Trajectory trajectoryy44 = drive.trajectoryBuilder(trajectoryy4.end())
-                .splineToConstantHeading(new Vector2d(-113.5, -21), Math.toRadians(0))
-                .splineTo(new Vector2d(-90, 10), Math.toRadians(180))
+
+        Trajectory trajectoryy3 = drive.trajectoryBuilder(trajectoryy2.end())
+                .lineToSplineHeading(new Pose2d(-119, 22.5, Math.toRadians(140)))
+                .splineTo(new Vector2d(-84, 24), Math.toRadians(180))
                 .addTemporalMarker(0.01, () -> {
-                    finalOuttake.setVelocity(-500);
-                    finalIntake.setPower(0.95);
+                    finalIntake.setPower(0.93);
+                    motorOuttake1.setVelocity(-300);
+                    motorOuttake2.setVelocity(-300);
+                })
+                .addTemporalMarker(2.45, () -> {
+                    finalIntake.setPower(0);
+                    out1.close();
+                    out2.close();
+                    plug.up();
+                })
+                .addTemporalMarker(3.3, () -> {
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
+                    wob_brat.down();
+                })
+                .build();
+
+
+        Trajectory trajectoryy4 = drive.trajectoryBuilder(trajectoryy3.end(), true)
+                .lineToSplineHeading(new Pose2d(-55, 17.5, Math.toRadians(0)))
+                .addTemporalMarker(0.4, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
+                    wob_brat.up();
+                    wob_cleste.close();
                 })
                 .build();
 
         Trajectory trajectoryy5 = drive.trajectoryBuilder(trajectoryy4.end())
-                .splineToConstantHeading(new Vector2d(-114, -19), Math.toRadians(0))
-                .addTemporalMarker(0.01, () -> {
-                    finalOuttake.setVelocity(-500);
-                    finalIntake.setPower(0.95);
-                })
-                .splineToSplineHeading(new Pose2d(-51, 21.5, Math.toRadians(0)), Math.toRadians(-90))
-                .splineToConstantHeading(new Vector2d(-32, 22.75), Math.toRadians(0),
+                .lineToSplineHeading(new Pose2d(-62, 18, Math.toRadians(0)))
+                .splineToConstantHeading(new Vector2d(-42, 18), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
-                                        new MecanumVelocityConstraint(12, DriveConstants.TRACK_WIDTH)
+                                        new MecanumVelocityConstraint(13, DriveConstants.TRACK_WIDTH)
                                 )
                         ),
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
+                .splineTo(new Vector2d(-24, 26), Math.toRadians(-40))
+                .addTemporalMarker(0.1, () -> {
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
+                    wob_brat.down();
+                    wob_cleste.open();
+                    outg.open();
+                })
+                .addTemporalMarker(0.6, () -> {
+                    out1.open();
+                    out2.open();
+                    finalIntake.setPower(0.92);
+                })
+                .addTemporalMarker(3.2, () -> {
+                    out1.close();
+                    out2.close();
+                    finalIntake.setPower(0);
+                })
                 .build();
 
-        Trajectory trajectoryy55 = drive.trajectoryBuilder(trajectoryy5.end())
-                .strafeTo(new Vector2d(-15,6))
-                .splineToConstantHeading(new Vector2d(-12.75, 18.5), Math.toRadians(0))
+        Trajectory trajectoryy6 = drive.trajectoryBuilder(trajectoryy5.end(), true)
+                .splineTo(new Vector2d(-55, 18), Math.toRadians(180))
+                .addTemporalMarker(0.9, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
+                })
                 .build();
 
-
-        Trajectory trajectoryy8 = drive.trajectoryBuilder(trajectoryy55.end())
-                .strafeTo(new Vector2d(-93.5, 2))
+        Trajectory trajectoryy7 = drive.trajectoryBuilder(trajectoryy6.end(), true)
+                .splineTo(new Vector2d(-83, 24), Math.toRadians(180))
+                .addTemporalMarker(0.1, () -> {
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
+                })
                 .build();
 
-        Trajectory trajectoryy9 = drive.trajectoryBuilder(trajectoryy8.end())
-                .strafeTo(new Vector2d(-69, 2))
+        Trajectory trajectoryy8 = drive.trajectoryBuilder(trajectoryy7.end())
+                .splineTo(new Vector2d(-73, 24), Math.toRadians(0))
+                .addTemporalMarker(0.2, () -> {
+                    wob_brat.up();
+                    wob_cleste.close();
+                })
                 .build();
-
-
 
 
 
         // *****************************  FOUR RINGS  ***************************** \\
 
 
+        /*
         Trajectory trajectoryyy1 = drive.trajectoryBuilder(new Pose2d())
-                .strafeTo(new Vector2d(-52.5, 1.5))
+                .strafeTo(new Vector2d(-52.5, -0.5))
                 .addTemporalMarker(0.5, () -> {
                     finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
@@ -329,7 +369,7 @@ public class auto_remote extends LinearOpMode
 
 
         Trajectory trajectoryyy2 = drive.trajectoryBuilder(trajectoryyy1.end().plus(new Pose2d(0, 0, Math.toRadians(17.5))), true)
-                .splineToSplineHeading(new Pose2d(-110, 33, Math.toRadians(30)), Math.toRadians(0))
+                .splineToSplineHeading(new Pose2d(-112, 35, Math.toRadians(30)), Math.toRadians(0))
                 .addTemporalMarker(1.6, () -> {
                     wob_brat.down();
                     outg.open();
@@ -378,7 +418,7 @@ public class auto_remote extends LinearOpMode
                         ),
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
-                .splineToConstantHeading(new Vector2d(-11, 21.75), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-10.25, 20.75), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -402,7 +442,7 @@ public class auto_remote extends LinearOpMode
         Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy4.end())
                 .strafeTo(new Vector2d(-47, 27.5))
                 .addTemporalMarker(0.02, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                    finalOuttake.setVelocity(HIGH_VELO+50);
                 })
                 .build();
 
@@ -423,7 +463,7 @@ public class auto_remote extends LinearOpMode
                 .strafeTo(new Vector2d(-70, 30))
                 .build();
 
-
+         */
 
 
         while(!isStarted())
@@ -525,99 +565,80 @@ public class auto_remote extends LinearOpMode
             out1.close();
             out2.close();
             wob_brat.mid();
+
             if(pipeline.zona == 0)
             {
                 drive.followTrajectory(trajectory1);
                 outg.cerc1();
-                sleep(250);
-                drive.followTrajectory(trajectory2);
-                outg.cerc2();
                 sleep(450);
+                outg.open();
+                drive.followTrajectory(trajectory11);
+                outg.cerc2();
+                sleep(650);
+                outg.open();
+                drive.followTrajectory(trajectory111);
+                outg.close();
+                sleep(850);
+
+                drive.followTrajectory(trajectory2);
                 drive.followTrajectory(trajectory3);
+                wob_cleste.open();
+                sleep(350);
+                drive.followTrajectory(trajectory4);
                 outg.close();
                 sleep(700);
 
-                drive.followTrajectory(trajectory4);
-                wob_cleste.setServoPositions(0.99);
-                sleep(150);
-                drive.followTrajectory(trajectory6);
+                drive.followTrajectory(trajectory5);
                 wob_cleste.close();
-                sleep(340);
-                drive.followTrajectory(trajectory7);
+                sleep(470);
+                drive.followTrajectory(trajectory6);
                 wob_cleste.open();
-                sleep(150);
-                wob_brat.mid();
-
-                drive.followTrajectory(trajectory8);
-                //drive.followTrajectory(trajectory9);
-                drive.followTrajectory(trajectory10);
-                outg.close();
                 sleep(350);
-                drive.followTrajectory(trajectory11);
-                outg.open();
+                drive.followTrajectory(trajectory7);
             }
 
             else if(pipeline.zona == 1)
             {
                 drive.followTrajectory(trajectoryy1);
-                /*
                 outg.cerc1();
-                sleep(250);
-                drive.followTrajectory(trajectoryy2);
-                outg.cerc2();
-                sleep(500);
-                drive.followTrajectory(trajectoryy3);
-                outg.close();
-                sleep(600);
-
-                 */
-
-                outg.cerc1();
-                sleep(340);
-                drive.turn(Math.toRadians(-10));
-                outg.cerc2();
-                sleep(340);
-                finalOuttake.setVelocity(POWERSHOT_VELO+25);
-                drive.turn(Math.toRadians(19.75));
-                outg.close();
-                sleep(340);
-
-
-                drive.followTrajectory(trajectoryy4);
-                wob_cleste.open();
-                sleep(200);
-                drive.followTrajectory(trajectoryy5);
-                outtake.setVelocity(HIGH_VELO-60);
-                intake.setPower(0);
-                out1.close();
-                out2.close();
-                sleep(750);
-                outg.close();
-                sleep(250);
-                outg.open();
-                sleep(100);
-                outg.close();
-                sleep(750);
-
-
-                drive.followTrajectory(trajectoryy55);
-                wob_cleste.close();
-                outg.close();
-                outtake.setVelocity(0);
-                sleep(400);
-                drive.followTrajectory(trajectoryy8);
-                wob_cleste.open();
                 sleep(450);
+                outg.open();
+                drive.followTrajectory(trajectoryy11);
+                outg.cerc2();
+                sleep(650);
+                outg.open();
+                drive.followTrajectory(trajectoryy111);
+                outg.close();
+                sleep(850);
+
+                drive.followTrajectory(trajectoryy2);
+                drive.followTrajectory(trajectoryy3);
+                wob_cleste.open();
+                sleep(350);
+                drive.followTrajectory(trajectoryy4);
+                outg.close();
+                sleep(950);
+
+                drive.followTrajectory(trajectoryy5);
+                wob_cleste.close();
+                sleep(470);
+                drive.followTrajectory(trajectoryy6);
+                outg.close();
+                sleep(950);
+                outg.open();
+                drive.followTrajectory(trajectoryy7);
+                wob_cleste.open();
                 wob_brat.up();
-                drive.followTrajectory(trajectoryy9);
+                sleep(300);
+                drive.followTrajectory(trajectoryy8);
             }
 
             else if(pipeline.zona == 4)
             {
+                /*
                 drive.followTrajectory(trajectoryyy1);
                 outg.cerc1();
                 sleep(340);
-                finalOuttake.setVelocity(POWERSHOT_VELO + 25);
                 drive.turn(Math.toRadians(-10));
                 outg.cerc2();
                 sleep(350);
@@ -631,7 +652,7 @@ public class auto_remote extends LinearOpMode
                 out1.close();
                 out2.close();
                 intake.setPower(0);
-                outtake.setVelocity(HIGH_VELO-20);
+                outtake.setVelocity(HIGH_VELO-40);
                 ///drive.turn(Math.toRadians(-5));
                 sleep(900);
                 outg.close();
@@ -662,6 +683,7 @@ public class auto_remote extends LinearOpMode
                 drive.followTrajectory(trajectoryyy7);
                 //drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 drive.followTrajectory(trajectoryyy8);
+                 */
             }
 
             out1.close();
@@ -697,7 +719,7 @@ public class auto_remote extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(260,40);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(260,80);
 
         static final int REGION_WIDTH = 35;
         static final int REGION_HEIGHT = 30;

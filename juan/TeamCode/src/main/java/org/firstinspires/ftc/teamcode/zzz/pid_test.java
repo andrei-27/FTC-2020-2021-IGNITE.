@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.zzz;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -16,7 +16,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.hardware.init_robot;
+import org.firstinspires.ftc.teamcode.zzz.init_robot;
 import org.firstinspires.ftc.teamcode.hardware.servo_glisiera;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake1;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake2;
@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.hardware.servo_wobble2;
 
 @Config
 @TeleOp
-//@Disabled
+@Disabled
 public class pid_test extends LinearOpMode {
 
     init_robot conserva = new init_robot();

@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.servo_glisiera;
+import org.firstinspires.ftc.teamcode.hardware.servo_intake;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake1;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake2;
 import org.firstinspires.ftc.teamcode.hardware.servo_plug;
@@ -43,12 +44,8 @@ import java.util.Arrays;
 public class red_mid extends LinearOpMode
 {
 
-    public static double NEW_P = 65;
-    public static double NEW_I = 3.75;
-    public static double NEW_D = 0;
-    public static double NEW_F = 16.4;
     public double HIGH_VELO = 1560;
-    public double POWERSHOT_VELO = 1240;
+    public double POWERSHOT_VELO = 1380;
 
     public static double zero = 128;
     public static double unu = 136;
@@ -98,6 +95,8 @@ public class red_mid extends LinearOpMode
         servo_wobble2 wob_cleste = new servo_wobble2(hardwareMap);
         servo_glisiera outg = new servo_glisiera(hardwareMap);
         servo_plug plug = new servo_plug(hardwareMap);
+        servo_intake serv_int = new servo_intake(hardwareMap);
+        serv_int.down();
         plug.up();
         out1.close();
         out2.close();
@@ -116,160 +115,141 @@ public class red_mid extends LinearOpMode
 
 
 
-        DcMotorEx outtake = null; // Intake motor
-        outtake = (DcMotorEx)hardwareMap.get(DcMotor.class, "outtake");
+        DcMotorEx motorOuttake1 = hardwareMap.get(DcMotorEx.class, "outtake1");
+        DcMotorEx motorOuttake2 = hardwareMap.get(DcMotorEx.class, "outtake2");
 
-        PIDFCoefficients pidOrig = outtake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // change coefficients using methods included with DcMotorEx class.
-        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidNew);
-
-        // re-read coefficients and verify change.
-        PIDCoefficients pidModified = outtake.getPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorOuttake1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorOuttake2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        DcMotorEx finalOuttake = outtake;
         DcMotor finalIntake = intake;
 
 
 
-          // ******************************************************************* \\
-         // ********************************************************************* \\
-        // *****************************  ZERO RINGS  **************************** \\
+        // *****************************  ZERO RINGS  ***************************** \\
 
 
-        //go to the 1st powershot position
         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-52, -0.6), Math.toRadians(185))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
+                .splineTo(new Vector2d(-53.5, -2.25), Math.toRadians(186))
+                .addTemporalMarker(1.3, () -> {
+                    motorOuttake1.setVelocity(POWERSHOT_VELO);
+                    motorOuttake2.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go to the 2nd powershot position
         Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
-                .strafeTo(new Vector2d(-52, 10))
+                .lineToSplineHeading(new Pose2d(-53.5, 8.25, Math.toRadians(6)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go to the 3rd powershot position
         Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                .strafeTo(new Vector2d(-52, 17.7))
+                .lineToSplineHeading(new Pose2d(-53.5, 15.5, Math.toRadians(6)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go near the wall and prepare to pick the rings
         Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end())
-                .lineToSplineHeading(new Pose2d(-120, 24, Math.toRadians(-90)))
+                .lineToSplineHeading(new Pose2d(-121, 24, Math.toRadians(-135)))
                 .addTemporalMarker(0.01, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                     plug.down();
                 })
+                .addTemporalMarker(0.55, () -> {
+                    serv_int.up();
+                })
                 .build();
 
-
-        //pick up the bounced back rings (if any) and go to the shooting position
         Trajectory trajectory5 = drive.trajectoryBuilder(trajectory4.end())
-                .splineToConstantHeading(new Vector2d(-114.5, -13), Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(-48.5, 0, Math.toRadians(-13.5)), Math.toRadians(0))
+                .lineToSplineHeading(new Pose2d(-119.5, -13, Math.toRadians(-135)))
+                .splineToSplineHeading(new Pose2d(-48.5, 0, Math.toRadians(-13)), Math.toRadians(0))
                 .addTemporalMarker(0.01, () -> {
                     out1.open();
                     out2.open();
-                    finalOuttake.setVelocity(-400);
+                    motorOuttake1.setVelocity(-300);
+                    motorOuttake2.setVelocity(-300);
                     finalIntake.setPower(0.95);
                 })
                 .addTemporalMarker(2.5, () -> {
                     out1.close();
                     out2.close();
                     finalIntake.setPower(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                     plug.up();
                 })
-                .addTemporalMarker(2.75, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                .addTemporalMarker(2.9, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
                 })
                 .build();
 
 
-        //go and drop the wobble in zone A
         Trajectory trajectory6 = drive.trajectoryBuilder(trajectory5.end(), true)
-                .splineToSplineHeading(new Pose2d(-83, 0, Math.toRadians(0)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-73.5, 19.25), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-74, 20.5), Math.toRadians(0))
+                .addTemporalMarker(0.2, () -> {
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
+                })
                 .build();
 
-
-        //park near the blue side
         Trajectory trajectory7 = drive.trajectoryBuilder(trajectory6.end())
-                .strafeTo(new Vector2d(-85, 5))
-                .splineToConstantHeading(new Vector2d(-70, -5), Math.toRadians(0))
+                .lineToSplineHeading(new Pose2d(-72, -5.5, Math.toRadians(0)))
                 .build();
 
 
 
 
-          // ****************************************************************** \\
-         // ******************************************************************** \\
         // *****************************  ONE RING  ***************************** \\
 
 
-        //go to the 1st powershot position
         Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-52, -0.6), Math.toRadians(185))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
+                .splineTo(new Vector2d(-53.5, -2.25), Math.toRadians(186))
+                .addTemporalMarker(1.3, () -> {
+                    motorOuttake1.setVelocity(POWERSHOT_VELO);
+                    motorOuttake2.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go to the 2nd powershot position
         Trajectory trajectoryy2 = drive.trajectoryBuilder(trajectoryy1.end())
-                .strafeTo(new Vector2d(-52, 10))
+                .lineToSplineHeading(new Pose2d(-53.5, 8.25, Math.toRadians(6)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go to the 3rd powershot position
         Trajectory trajectoryy3 = drive.trajectoryBuilder(trajectoryy2.end())
-                .strafeTo(new Vector2d(-52, 17.7))
+                .lineToSplineHeading(new Pose2d(-53.5, 15.5, Math.toRadians(6)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go near the wall, drop the wobble in zone B and prepare to pick the rings
         Trajectory trajectoryy4 = drive.trajectoryBuilder(trajectoryy3.end())
                 .lineToSplineHeading(new Pose2d(-120, 24, Math.toRadians(-90)))
                 .addTemporalMarker(0.01, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                     plug.down();
+                })
+                .addTemporalMarker(0.55, () -> {
+                    serv_int.up();
                 })
                 .build();
 
-
-        //pick up the bounced back rings (if any) and go to the shooting position
         Trajectory trajectoryy5 = drive.trajectoryBuilder(trajectoryy4.end())
                 .splineToConstantHeading(new Vector2d(-114.5, -13), Math.toRadians(0))
                 .splineToSplineHeading(new Pose2d(-48.5, 0, Math.toRadians(-13.5)), Math.toRadians(0))
                 .addTemporalMarker(0.01, () -> {
                     out1.open();
                     out2.open();
-                    finalOuttake.setVelocity(-400);
+                    motorOuttake1.setVelocity(-300);
+                    motorOuttake2.setVelocity(-300);
                     finalIntake.setPower(0.95);
                 })
                 .addTemporalMarker(2.5, () -> {
@@ -279,74 +259,69 @@ public class red_mid extends LinearOpMode
                     plug.up();
                 })
                 .addTemporalMarker(2.75, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
                 })
                 .build();
 
 
-        //park near the blue side
         Trajectory trajectoryy6 = drive.trajectoryBuilder(trajectoryy5.end())
                 .splineToConstantHeading(new Vector2d(-71, -4), Math.toRadians(0))
                 .addTemporalMarker(0.1, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
                 .build();
 
 
 
 
-          // ******************************************************************* \\
-         // ********************************************************************* \\
+
         // *****************************  FOUR RINGS  ***************************** \\
 
 
-        //go to the 1st powershot position
         Trajectory trajectoryyy1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-52.75, -0.6), Math.toRadians(185))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
+                .splineTo(new Vector2d(-53.5, -2.25), Math.toRadians(186))
+                .addTemporalMarker(1.3, () -> {
+                    motorOuttake1.setVelocity(POWERSHOT_VELO);
+                    motorOuttake2.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go to the 2nd powershot position
         Trajectory trajectoryyy2 = drive.trajectoryBuilder(trajectoryyy1.end())
-                .strafeTo(new Vector2d(-52.75, 10))
+                .lineToSplineHeading(new Pose2d(-53.5, 8.25, Math.toRadians(6)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go to the 3rd powershot position
         Trajectory trajectoryyy3 = drive.trajectoryBuilder(trajectoryyy2.end())
-                .strafeTo(new Vector2d(-52.75, 17.7))
+                .lineToSplineHeading(new Pose2d(-53.5, 15.5, Math.toRadians(6)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(POWERSHOT_VELO);
                 })
                 .build();
 
-
-        //go near the wall and prepare to pick the rings
         Trajectory trajectoryyy4 = drive.trajectoryBuilder(trajectoryyy3.end())
                 .lineToSplineHeading(new Pose2d(-120, 24, Math.toRadians(-90)))
                 .addTemporalMarker(0.01, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                     plug.down();
+                })
+                .addTemporalMarker(0.55, () -> {
+                    serv_int.up();
                 })
                 .build();
 
-
-        //pick up the bounced back rings (if any) and go to the shooting position
         Trajectory trajectoryyy5 = drive.trajectoryBuilder(trajectoryyy4.end())
                 .splineToConstantHeading(new Vector2d(-114.5, -13), Math.toRadians(0))
                 .splineToSplineHeading(new Pose2d(-48.5, 0, Math.toRadians(-13.5)), Math.toRadians(0))
                 .addTemporalMarker(0.01, () -> {
                     out1.open();
                     out2.open();
-                    finalOuttake.setVelocity(-400);
+                    motorOuttake1.setVelocity(-300);
+                    motorOuttake2.setVelocity(-300);
                     finalIntake.setPower(0.95);
                 })
                 .addTemporalMarker(2.5, () -> {
@@ -356,27 +331,23 @@ public class red_mid extends LinearOpMode
                     plug.up();
                 })
                 .addTemporalMarker(2.75, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
                 })
                 .build();
 
-
-        //go and drop the wobble in zone C
         Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy5.end(), true)
                 .splineToSplineHeading(new Pose2d(-100, 0, Math.toRadians(0)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-114.5, 19.25), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-116, 19.75), Math.toRadians(0))
                 .addTemporalMarker(0.1, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
                 .build();
 
-
-        //park near the blue side
         Trajectory trajectoryyy7 = drive.trajectoryBuilder(trajectoryyy6.end())
                 .splineToConstantHeading(new Vector2d(-70, -5), Math.toRadians(0))
                 .build();
-
-
 
 
 
@@ -482,7 +453,6 @@ public class red_mid extends LinearOpMode
 
             if(pipeline.zona == 0)
             {
-                //powershot sequence
                 drive.followTrajectory(trajectory1);
                 outg.cerc1();
                 sleep(500);
@@ -496,16 +466,12 @@ public class red_mid extends LinearOpMode
                 sleep(900);
                 outg.open();
 
-                //bounced back rings sequence
                 drive.followTrajectory(trajectory4);
                 drive.followTrajectory(trajectory5);
-
-                //shoot the rings
                 outg.close();
                 sleep(900);
                 outg.open();
 
-                //wobble
                 drive.followTrajectory(trajectory6);
                 sleep(500);
                 wob_brat.down();
@@ -513,15 +479,11 @@ public class red_mid extends LinearOpMode
                 wob_cleste.open();
                 sleep(350);
                 wob_brat.mid();
-
-                //park
                 drive.followTrajectory(trajectory7);
             }
 
             else if(pipeline.zona == 1)
             {
-
-                //powershot sequence
                 drive.followTrajectory(trajectoryy1);
                 outg.cerc1();
                 sleep(500);
@@ -535,9 +497,8 @@ public class red_mid extends LinearOpMode
                 sleep(900);
                 outg.open();
 
-                //wobble and bounced back rings sequence
                 drive.followTrajectory(trajectoryy4);
-                sleep(750);
+                sleep(550);
                 wob_brat.down();
                 sleep(700);
                 wob_cleste.open();
@@ -545,21 +506,14 @@ public class red_mid extends LinearOpMode
                 wob_brat.mid();
 
                 drive.followTrajectory(trajectoryy5);
-
-                //shoot the rings
                 outg.close();
                 sleep(900);
                 outg.open();
-
-                //park
                 drive.followTrajectory(trajectoryy6);
-
             }
 
             else if(pipeline.zona == 4)
             {
-
-                //powershot sequence
                 drive.followTrajectory(trajectoryyy1);
                 outg.cerc1();
                 sleep(500);
@@ -573,16 +527,12 @@ public class red_mid extends LinearOpMode
                 sleep(900);
                 outg.open();
 
-                //bounced back rings sequence
                 drive.followTrajectory(trajectoryyy4);
                 drive.followTrajectory(trajectoryyy5);
-
-                //shoot the rings
                 outg.close();
                 sleep(900);
                 outg.open();
 
-                //wobble
                 drive.followTrajectory(trajectoryyy6);
                 sleep(500);
                 wob_brat.down();
@@ -590,10 +540,7 @@ public class red_mid extends LinearOpMode
                 wob_cleste.open();
                 sleep(350);
                 wob_brat.mid();
-
-                //park
                 drive.followTrajectory(trajectoryyy7);
-
             }
 
             out1.close();
@@ -629,7 +576,7 @@ public class red_mid extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(210,80);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(260,80);
 
         static final int REGION_WIDTH = 35;
         static final int REGION_HEIGHT = 30;

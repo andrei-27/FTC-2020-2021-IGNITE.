@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.servo_glisiera;
+import org.firstinspires.ftc.teamcode.hardware.servo_intake;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake1;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake2;
 import org.firstinspires.ftc.teamcode.hardware.servo_plug;
@@ -43,12 +44,7 @@ import java.util.Arrays;
 public class blue_wall extends LinearOpMode
 {
 
-    public static double NEW_P = 65;
-    public static double NEW_I = 3.75;
-    public static double NEW_D = 0;
-    public static double NEW_F = 16.4;
-    public double HIGH_VELO = 1510;
-    public double POWERSHOT_VELO = 1210;
+    public static double HIGH_VELO = 1540;
 
     public static double zero = 128;
     public static double unu = 136;
@@ -98,6 +94,8 @@ public class blue_wall extends LinearOpMode
         servo_wobble2 wob_cleste = new servo_wobble2(hardwareMap);
         servo_glisiera outg = new servo_glisiera(hardwareMap);
         servo_plug plug = new servo_plug(hardwareMap);
+        servo_intake serv_int = new servo_intake(hardwareMap);
+        serv_int.down();
         plug.up();
         out1.close();
         out2.close();
@@ -116,93 +114,86 @@ public class blue_wall extends LinearOpMode
 
 
 
-        DcMotorEx outtake = null; // Intake motor
-        outtake = (DcMotorEx)hardwareMap.get(DcMotor.class, "outtake");
+        DcMotorEx motorOuttake1 = hardwareMap.get(DcMotorEx.class, "outtake1");
+        DcMotorEx motorOuttake2 = hardwareMap.get(DcMotorEx.class, "outtake2");
 
-        PIDFCoefficients pidOrig = outtake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // change coefficients using methods included with DcMotorEx class.
-        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidNew);
-
-        // re-read coefficients and verify change.
-        PIDCoefficients pidModified = outtake.getPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorOuttake1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorOuttake2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        DcMotorEx finalOuttake = outtake;
         DcMotor finalIntake = intake;
 
 
-          // ******************************************************************* \\
-         // ********************************************************************* \\
+
         // *****************************  ZERO RINGS  ***************************** \\
 
 
-        //go to the shooting position
         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-48, 0), Math.toRadians(180-17))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                .splineTo(new Vector2d(-58, -1.5), Math.toRadians(180-15))
+                .addTemporalMarker(1.2, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
                 })
                 .build();
 
-
-        //go to zone A to drop the wobble
         Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end(), true)
                 .splineTo(new Vector2d(-71.5, 7.5), Math.toRadians(0))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
                 .build();
 
-
-        //go back to start position
-        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end(), true)
-                .strafeTo(new Vector2d(-13, 0))
+        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
+                .splineTo(new Vector2d(-10, 0), Math.toRadians(0))
                 .addTemporalMarker(0.1, () -> {
                     wob_brat.up();
                     wob_cleste.close();
                 })
                 .build();
 
-
-        //park near the zone A
-        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end())
-                .strafeTo(new Vector2d(-71, 19))
-                .build();
-
-
-
-
-
-          // ****************************************************************** \\
-         // ******************************************************************** \\
-        // *****************************  ONE RING  ***************************** \\
-
-
-        //go to the shooting position
-        Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-48, 0), Math.toRadians(180-17))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end(), true)
+                .splineTo(new Vector2d(-73.5, 18), Math.toRadians(180))
+                .addTemporalMarker(0.25, () -> {
+                    plug.down();
+                })
+                .addTemporalMarker(0.55, () -> {
+                    serv_int.up();
+                })
+                .addTemporalMarker(0.9, () -> {
+                    plug.up();
                 })
                 .build();
 
 
-        //go to zone B to drop the wobble
+
+
+
+
+
+        // *****************************  ONE RING  ***************************** \\
+
+
+        Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d(), true)
+                .splineTo(new Vector2d(-58, -1.5), Math.toRadians(180-15))
+                .addTemporalMarker(1.2, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
+                })
+                .build();
+
         Trajectory trajectoryy2 = drive.trajectoryBuilder(trajectory1.end(), true)
                 .splineTo(new Vector2d(-100, -2), Math.toRadians(180))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
                 .build();
 
-
-        //go to the starter stack and pick up the ring
         Trajectory trajectoryy3 = drive.trajectoryBuilder(trajectoryy2.end())
                 .strafeTo(new Vector2d(-75, 0))
                 .splineToConstantHeading(new Vector2d(-60, 22.5), Math.toRadians(0))
@@ -221,14 +212,18 @@ public class blue_wall extends LinearOpMode
                     out1.open();
                     out2.open();
                 })
-                .addTemporalMarker(1.2, () -> {
+                .addTemporalMarker(0.4, () -> {
                     plug.down();
+                })
+                .addTemporalMarker(0.8, () -> {
+                    serv_int.up();
+                })
+                .addTemporalMarker(1.3, () -> {
+                    plug.up();
                     finalIntake.setPower(0.95);
                 })
                 .build();
 
-
-        //go to the shooting position
         Trajectory trajectoryy4 = drive.trajectoryBuilder(trajectoryy3.end(), true)
                 .splineToConstantHeading(new Vector2d(-44, 26), Math.toRadians(0))
                 .addTemporalMarker(0.02, () -> {
@@ -237,49 +232,43 @@ public class blue_wall extends LinearOpMode
                     finalIntake.setPower(0);
                 })
                 .addTemporalMarker(0.4, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
                 })
                 .build();
 
-
-        //park near the wall
         Trajectory trajectoryy5 = drive.trajectoryBuilder(trajectoryy4.end(), true)
-                .splineToConstantHeading(new Vector2d(-70, 2), Math.toRadians(0))
+                .splineTo(new Vector2d(-73, 1), Math.toRadians(180))
                 .addTemporalMarker(0.1, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
                 .build();
 
 
 
 
-
-
-          // ******************************************************************* \\
-         // ********************************************************************* \\
         // *****************************  FOUR RINGS  ***************************** \\
 
 
-        //go to the shooting position
         Trajectory trajectoryyy1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-48, 0), Math.toRadians(180-17))
-                .addTemporalMarker(0.5, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                .splineTo(new Vector2d(-58, -1.5), Math.toRadians(180-15))
+                .addTemporalMarker(1.2, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO);
+                    motorOuttake2.setVelocity(HIGH_VELO);
                 })
                 .build();
 
-
-        //go to zone C to drop the wobble
         Trajectory trajectoryyy2 = drive.trajectoryBuilder(trajectoryyy1.end(), true)
                 .splineTo(new Vector2d(-112, 5.5), Math.toRadians(0))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
                 .build();
 
 
-        //go to the starter stack and pick up 2 rings
         Trajectory trajectoryyy3 = drive.trajectoryBuilder(trajectoryyy2.end())
                 .strafeTo(new Vector2d(-72, 5))
                 .splineTo(new Vector2d(-63, 24), Math.toRadians(180))
@@ -298,28 +287,32 @@ public class blue_wall extends LinearOpMode
                     out1.open();
                     out2.open();
                 })
-                .addTemporalMarker(2.2, () -> {
-                    finalIntake.setPower(0.95);
+                .addTemporalMarker(0.9, () -> {
                     plug.down();
+                })
+                .addTemporalMarker(1.5, () -> {
+                    serv_int.up();
+                })
+                .addTemporalMarker(2.2, () -> {
+                    finalIntake.setPower(0.92);
                 })
                 .build();
 
 
-        //go to the shooting position
+
         Trajectory trajectoryyy4 = drive.trajectoryBuilder(trajectoryyy3.end())
-                .splineToConstantHeading(new Vector2d(-42.5, 26), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-42.5, 24), Math.toRadians(0))
                 .addTemporalMarker(0.02, () -> {
                     out1.close();
                     out2.close();
                     finalIntake.setPower(0);
                 })
-                .addTemporalMarker(0.4, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                .addTemporalMarker(0.3, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO+20);
+                    motorOuttake2.setVelocity(HIGH_VELO+20);
                 })
                 .build();
 
-
-        //pick up the remaining 2 rings
         Trajectory trajectoryyy5 = drive.trajectoryBuilder(trajectoryyy4.end())
                 .splineToConstantHeading(new Vector2d(-40, 24), Math.toRadians(0))
                 .splineToConstantHeading(new Vector2d(-21, 24), Math.toRadians(0),
@@ -332,35 +325,34 @@ public class blue_wall extends LinearOpMode
                         new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL)
                 )
                 .addTemporalMarker(0.05, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
-                .addTemporalMarker(0.3, () -> {
+                .addTemporalMarker(0.5, () -> {
                     finalIntake.setPower(0.9);
                     out1.open();
                     out2.open();
                 })
                 .build();
 
-
-        //go to the shooting position
-        Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy5.end())
-                .splineToConstantHeading(new Vector2d(-42.5, 26), Math.toRadians(0))
+        Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy5.end(), true)
+                .lineToSplineHeading(new Pose2d(-54, 7, Math.toRadians(-6)))
                 .addTemporalMarker(0.02, () -> {
                     out1.close();
                     out2.close();
                     finalIntake.setPower(0);
                 })
-                .addTemporalMarker(0.4, () -> {
-                    finalOuttake.setVelocity(HIGH_VELO);
+                .addTemporalMarker(0.3, () -> {
+                    motorOuttake1.setVelocity(HIGH_VELO+20);
+                    motorOuttake2.setVelocity(HIGH_VELO+20);
                 })
                 .build();
 
-
-        //park near the wall
         Trajectory trajectoryyy7 = drive.trajectoryBuilder(trajectoryyy6.end())
-                .splineToConstantHeading(new Vector2d(-69, 1.5), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-70, 1.5), Math.toRadians(0))
                 .addTemporalMarker(0.1, () -> {
-                    finalOuttake.setVelocity(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                     plug.up();
                 })
                 .build();
@@ -469,35 +461,19 @@ public class blue_wall extends LinearOpMode
             if(pipeline.zona == 0)
             {
                 drive.followTrajectory(trajectory1);
-
-                // SHOOT THE RINGS ONE BY ONE
-                /*
-                outg.cerc1();
-                sleep(1000);
-                outg.open();
-                sleep(400);
-                outg.cerc2();
-                sleep(1000);
-                outg.open();
-                sleep(400);
-                outg.close();
-                sleep(1000);
-                 */
-
-
-                // SHOOT ALL THE RINGS IN 0.9s
                 outg.close();
                 sleep(900);
 
                 drive.followTrajectory(trajectory2);
-                sleep(400);
+
+                sleep(350);
                 wob_brat.down();
-                sleep(700);
+                sleep(600);
                 wob_cleste.open();
-                sleep(500);
+                sleep(420);
 
                 drive.followTrajectory(trajectory3);
-                sleep(12*1000);          // ****** SECONDS TO WAIT UNTIL IT PARKS *******
+                sleep(13*1000);
                 drive.followTrajectory(trajectory4);
 
             }
@@ -507,103 +483,51 @@ public class blue_wall extends LinearOpMode
 
                 drive.followTrajectory(trajectoryy1);
 
-                // SHOOT THE RINGS ONE BY ONE
-                /*
-                outg.cerc1();
-                sleep(1000);
-                outg.open();
-                sleep(400);
-                outg.cerc2();
-                sleep(1000);
-                outg.open();
-                sleep(400);
-                outg.close();
-                sleep(1000);
-                 */
-
-
-                // SHOOT ALL THE RINGS IN 0.9s
                 outg.close();
                 sleep(900);
                 outg.open();
 
-                //wobble
                 drive.followTrajectory(trajectoryy2);
                 sleep(750);
                 wob_brat.down();
                 sleep(800);
                 wob_cleste.open();
                 sleep(500);
-                wob_brat.mid();
-                sleep(250);
-
-                //pick up the ring
                 drive.followTrajectory(trajectoryy3);
                 sleep(500);
-
-                //shoot the ring
                 drive.followTrajectory(trajectoryy4);
                 outg.close();
-                sleep(900);
+                sleep(1100);
                 outg.open();
-
-                //park
                 drive.followTrajectory(trajectoryy5);
             }
 
             else if(pipeline.zona == 4)
             {
-
                 drive.followTrajectory(trajectoryyy1);
-
-                // SHOOT THE RINGS ONE BY ONE
-                /*
-                outg.cerc1();
-                sleep(1000);
-                outg.open();
-                sleep(400);
-                outg.cerc2();
-                sleep(1000);
-                outg.open();
-                sleep(400);
                 outg.close();
-                sleep(1000);
-                 */
-
-
-                // SHOOT ALL THE RINGS IN 0.9s
-                outg.close();
-                sleep(900);
+                sleep(1050);
                 outg.open();
 
-                //wobble
                 drive.followTrajectory(trajectoryyy2);
                 sleep(300);
                 wob_brat.down();
-                sleep(700);
+                sleep(550);
                 wob_cleste.open();
-                sleep(500);
-
-                //pick up 2 rings
+                sleep(450);
                 drive.followTrajectory(trajectoryyy3);
-
-                //shoot them
                 drive.followTrajectory(trajectoryyy4);
                 outg.close();
-                sleep(900);
+                sleep(950);
                 outg.open();
 
-                //pick up 2 rings
                 drive.followTrajectory(trajectoryyy5);
-
-                //shoot them
                 drive.followTrajectory(trajectoryyy6);
                 outg.close();
-                sleep(900);
+                sleep(950);
                 outg.open();
-
-                //park
                 drive.followTrajectory(trajectoryyy7);
+
 
             }
 

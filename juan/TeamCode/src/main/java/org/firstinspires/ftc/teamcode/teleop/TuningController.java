@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.hardware;
+package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.noahbres.jotai.StateMachine;
@@ -7,12 +7,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 public class TuningController {
-    public static double MOTOR_TICKS_PER_REV = 103.8;
-    public static double MOTOR_MAX_RPM = 1620;
-    public static double MOTOR_GEAR_RATIO = 4.0; // output (wheel) speed / input (motor) speed
+    public static double MOTOR_TICKS_PER_REV = 28;
+    public static double MOTOR_MAX_RPM = 5400;
+    public static double MOTOR_GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
 
-    public static double TESTING_MAX_SPEED = 0.92 * MOTOR_MAX_RPM;
-    public static double TESTING_MIN_SPEED = 0.22 * MOTOR_MAX_RPM;
+    public static double TESTING_MAX_SPEED = 0.9 * MOTOR_MAX_RPM;
+    public static double TESTING_MIN_SPEED = 0.3 * MOTOR_MAX_RPM;
 
 
     // These are prefixed with "STATE1", "STATE2", etc. because Dashboard displays variables in

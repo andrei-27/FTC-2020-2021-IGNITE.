@@ -7,7 +7,6 @@ import com.acmerobotics.roadrunner.localization.TwoTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.teleop.augmentedDrive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.util.Encoder;
 
 import java.util.Arrays;
@@ -38,11 +37,11 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.75; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double PARALLEL_X = -0.2; // X is the up and down direction
-    public static double PARALLEL_Y = -7.8; // Y is the strafe direction
+    public static double PARALLEL_X = 0.0; // X is the up and down direction
+    public static double PARALLEL_Y = -7.28; // Y is the strafe direction
 
-    public static double PERPENDICULAR_X = -6.69;
-    public static double PERPENDICULAR_Y = 0.2;
+    public static double PERPENDICULAR_X = -6.49;
+    public static double PERPENDICULAR_Y = 0.79;
 
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
@@ -69,6 +68,7 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftFront"));
 
         perpendicularEncoder.setDirection(Encoder.Direction.REVERSE);
+        parallelEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
 

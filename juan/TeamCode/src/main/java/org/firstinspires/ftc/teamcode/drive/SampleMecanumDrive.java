@@ -13,7 +13,6 @@ import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
@@ -35,7 +34,6 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.teamcode.teleop.augmentedDrive.SampleMecanumDriveCancelable;
 import org.firstinspires.ftc.teamcode.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
 
@@ -120,7 +118,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         ));
         accelConstraint = new ProfileAccelerationConstraint(MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.3, 0.3, Math.toRadians(0.7)), 0.5);
+                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 1.0);
 
         poseHistory = new LinkedList<>();
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.augmentedDrive;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -10,14 +11,23 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.servo_glisiera;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake1;
 import org.firstinspires.ftc.teamcode.hardware.servo_outtake2;
 import org.firstinspires.ftc.teamcode.hardware.servo_plug;
+import org.firstinspires.ftc.teamcode.hardware.servo_intake;
 import org.firstinspires.ftc.teamcode.hardware.servo_wobble1;
 import org.firstinspires.ftc.teamcode.hardware.servo_wobble2;
+import org.firstinspires.ftc.teamcode.teleop.TuningController;
+import org.firstinspires.ftc.teamcode.teleop.VelocityPIDFController;
 
 import static java.lang.Boolean.FALSE;
 
@@ -26,7 +36,6 @@ import static java.lang.Boolean.FALSE;
 //@Disabled
 public class driveAlbastru extends LinearOpMode {
 
-
     private double root2 = Math.sqrt(2.0);
     Boolean ok3 = FALSE;
     Boolean ok2 = FALSE;
@@ -34,13 +43,19 @@ public class driveAlbastru extends LinearOpMode {
     Boolean contor = FALSE;
     Boolean cont_glisiera = FALSE;
 
+    public static com.acmerobotics.roadrunner.control.PIDCoefficients MOTOR_VELO_PID = new com.acmerobotics.roadrunner.control.PIDCoefficients(0.00038, 0.0000012, 0);
 
-    public static double NEW_P = 65;
-    public static double NEW_I = 3.75;
-    public static double NEW_D = 0;
-    public static double NEW_F = 16.4;
-    public double HIGH_VELO = 1520;
-    public double POWERSHOT_VELO = 1280;
+    public static double kV = 1 / TuningController.rpmToTicksPerSecond(TuningController.MOTOR_MAX_RPM);
+    public static double kA = 0;
+    public static double targetVelo = 0;
+    public static double viteza = 1620;
+    public static double kStatic = 0;
+
+    public static double POWERSHOT_VELO = 1390;
+
+    private final FtcDashboard dashboard = FtcDashboard.getInstance();
+
+    private final ElapsedTime veloTimer = new ElapsedTime();
 
     // Define 2 states, drive control or automatic control
     enum Mode {
@@ -57,6 +72,7 @@ public class driveAlbastru extends LinearOpMode {
 
     // The angle we want to align to when we press Y
     double targetAngle = Math.toRadians(0);
+    double targetAngleZero = Math.toRadians(180);
 
     SampleMecanumDrive drive;
 
@@ -64,19 +80,17 @@ public class driveAlbastru extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        // Initialize custom cancelable SampleMecanumDrive class
 
-        DcMotorEx outtake = null; // Intake motor
-        outtake = (DcMotorEx)hardwareMap.get(DcMotor.class, "outtake");
+        DcMotorEx myMotor1 = hardwareMap.get(DcMotorEx.class, "outtake1");
+        DcMotorEx myMotor2 = hardwareMap.get(DcMotorEx.class, "outtake2");
 
-        PIDFCoefficients pidOrig = outtake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        myMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        myMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        // change coefficients using methods included with DcMotorEx class.
-        PIDFCoefficients pidNew = new PIDFCoefficients(NEW_P, NEW_I, NEW_D, NEW_F);
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidNew);
+        VelocityPIDFController veloController = new VelocityPIDFController(MOTOR_VELO_PID, kV, kA, kStatic);
 
-        // re-read coefficients and verify change.
-        PIDCoefficients pidModified = outtake.getPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        double lastTargetVelo = 0.0;
+
 
 
         DcMotor intake = null;
@@ -95,13 +109,14 @@ public class driveAlbastru extends LinearOpMode {
         servo_wobble2 wob_cleste = new servo_wobble2(hardwareMap);
         servo_glisiera outg = new servo_glisiera(hardwareMap);
         servo_plug plug = new servo_plug(hardwareMap);
+        servo_intake serv_int = new servo_intake(hardwareMap);
         plug.up();
         out1.open();
         out2.open();
         outg.open();
         wob_brat.mid();
         wob_cleste.close();
-
+        serv_int.up();
 
 
         drive = new SampleMecanumDrive(hardwareMap);
@@ -112,19 +127,33 @@ public class driveAlbastru extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive() && !isStopRequested()) {
+
             // Update the drive class
             drive.update();
 
             // Read pose
             Pose2d poseEstimate = drive.getPoseEstimate();
 
-            // Print pose to telemetry
-
-
-            // We follow different logic based on whether we are in manual driver control or switch
             // control to the automatic mode
             switch (currentMode) {
                 case DRIVER_CONTROL:
+
+                    veloController.setTargetVelocity(targetVelo);
+                    veloController.setTargetAcceleration((targetVelo - lastTargetVelo) / veloTimer.seconds());
+                    veloTimer.reset();
+
+                    lastTargetVelo = targetVelo;
+
+                    double motorPos = myMotor1.getCurrentPosition();
+                    double motorVelo = myMotor1.getVelocity();
+
+                    double power = veloController.update(motorPos, motorVelo);
+                    myMotor1.setPower(power);
+                    myMotor2.setPower(power);
+
+
+                    // GAMEPAD 1 //
+
                     drive.setDrivePower(
                             new Pose2d(
                                     -gamepad1.left_stick_y,
@@ -133,39 +162,27 @@ public class driveAlbastru extends LinearOpMode {
                             )
                     );
 
-                    if(gamepad1.a)
-                        resetPositionCorner();
-
-                    if(gamepad1.b)
-                        resetPositionLine();
-
-                    if (gamepad1.right_bumper) {
-                        targetAngle = Math.atan2(-poseEstimate.getY() + towerVector.getY(), -poseEstimate.getX() + towerVector.getX());
-
-                        drive.turnAsync(Angle.normDelta(targetAngle - poseEstimate.getHeading()) + 3.1415);
-
-                        currentMode = Mode.AUTOMATIC_CONTROL;
-                    }
-
-                    if(gamepad1.y)
+                    if(gamepad1.y && gamepad1.dpad_up)
                     {
                         resetPositionLine();
 
-                        DcMotorEx finalOuttake = outtake;
+                        DcMotorEx finalOuttake1 = myMotor1;
+                        DcMotorEx finalOuttake2 = myMotor2;
 
                         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(63.5, 0, 3.1415))
-                                .strafeTo(new Vector2d(56.5, -40.25))
-                                .addTemporalMarker(0.15, () -> {
-                                    finalOuttake.setVelocity(POWERSHOT_VELO);
+                                .strafeTo(new Vector2d(56.5, -49))
+                                .addTemporalMarker(0.8, () -> {
+                                    finalOuttake1.setVelocity(POWERSHOT_VELO);
+                                    finalOuttake2.setVelocity(POWERSHOT_VELO);
                                 })
                                 .build();
 
                         Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
-                                .strafeTo(new Vector2d(56.5, -50))
+                                .strafeTo(new Vector2d(56.5, -54.75))
                                 .build();
 
                         Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                                .strafeTo(new Vector2d(56.5, -56.8))
+                                .strafeTo(new Vector2d(56.5, -60))
                                 .build();
 
                         drive.followTrajectory(trajectory1);
@@ -177,32 +194,113 @@ public class driveAlbastru extends LinearOpMode {
                         outg.open();
                         drive.followTrajectory(trajectory2);
                         outg.cerc2();
-                        sleep(550);
+                        sleep(580);
                         outg.open();
                         drive.followTrajectory(trajectory3);
                         outg.close();
-                        sleep(750);
+                        sleep(1050);
                         outg.open();
                         sleep(250);
                         out1.open();
                         out2.open();
                     }
 
+                    if(gamepad1.x && gamepad1.dpad_right)
+                    {
+                        resetPositionLine();
+
+                        DcMotorEx finalOuttake1 = myMotor1;
+                        DcMotorEx finalOuttake2 = myMotor2;
+
+                        Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(63.5, 0, Math.PI))
+                                .lineToSplineHeading(new Pose2d(61, -40, Math.toRadians(180-4)))
+                                .addTemporalMarker(0.1, () -> {
+                                    finalOuttake1.setVelocity(-300);
+                                    finalOuttake2.setVelocity(-300);
+                                    out1.close();
+                                    out2.close();
+                                })
+                                .addTemporalMarker(0.5, () -> {
+                                    finalOuttake1.setVelocity(0);
+                                    finalOuttake2.setVelocity(0);
+                                })
+                                .addTemporalMarker(0.9, () -> {
+                                    finalOuttake1.setVelocity(POWERSHOT_VELO);
+                                    finalOuttake2.setVelocity(POWERSHOT_VELO);
+                                })
+                                .build();
+
+                        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
+                                .lineToSplineHeading(new Pose2d(62, -41, Math.toRadians(180-9)))
+                                .build();
+
+                        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
+                                .lineToSplineHeading(new Pose2d(63, -42, Math.toRadians(180-14)))
+                                .build();
+
+                        drive.followTrajectory(trajectory1);
+                        sleep(100);
+                        outg.cerc1();
+                        sleep(300);
+                        outg.open();
+                        drive.followTrajectory(trajectory2);
+                        sleep(100);
+                        outg.cerc2();
+                        sleep(500);
+                        outg.open();
+                        drive.followTrajectory(trajectory3);
+                        sleep(100);
+                        outg.close();
+                        sleep(1100);
+                        outg.open();
+                        sleep(300);
+                        out1.open();
+                        out2.open();
+                    }
+
+                    if(gamepad1.a)
+                        resetPositionCorner();
+
+                    if(gamepad1.b)
+                        resetPositionLine();
+
+                    if (gamepad1.right_bumper) {
+                        targetAngle = Math.atan2((-poseEstimate.getY() + towerVector.getY())*-1.0, (-poseEstimate.getX() + towerVector.getX())*-1.0);
+
+                        double unghi = targetAngle - poseEstimate.getHeading();
+
+                        if(unghi > Math.PI)
+                            unghi = unghi - 2*Math.PI;
+
+                        else if(unghi < Math.PI)
+                            unghi = unghi + 2*Math.PI;
+
+                        drive.turnAsync(unghi);
+
+                        currentMode = Mode.AUTOMATIC_CONTROL;
+                    }
+
+                    if (gamepad1.left_bumper) {
+                        drive.turnAsync(targetAngleZero - poseEstimate.getHeading());
+                        currentMode = Mode.AUTOMATIC_CONTROL;
+                    }
+
+
+                    // GAMEPAD 2 //
+
                     if (gamepad2.left_bumper && !cont_glisiera){
-                        outtake.setVelocity(HIGH_VELO);
                         out1.close();
                         out2.close();
-                        sleep(250);
+                        sleep(220);
                         outg.close();
                         cont_glisiera = true;
                     }
                     if (!gamepad2.left_bumper && cont_glisiera){
                         outg.open();
-                        sleep(400);
+                        sleep(300);
                         out1.open();
                         out2.open();
                         cont_glisiera = false;
-                        outtake.setVelocity(0);
                     }
 
 
@@ -210,7 +308,7 @@ public class driveAlbastru extends LinearOpMode {
                         wob_brat.down();
                     }
                     else{
-                        wob_brat.mid();
+                        wob_brat.up();
                     }
                     if(gamepad2.y){
                         wob_cleste.open();
@@ -227,11 +325,11 @@ public class driveAlbastru extends LinearOpMode {
 
 
                     if (gamepad2.dpad_up && !cont){
-                        HIGH_VELO = HIGH_VELO + 20;
+                        viteza = viteza + 20;
                         cont = !cont;
                     }
                     if (gamepad2.dpad_down && !contor){
-                        HIGH_VELO = HIGH_VELO - 20;
+                        viteza = viteza - 20;
                         contor = !contor;
                     }
                     if (!gamepad2.dpad_up){
@@ -240,28 +338,15 @@ public class driveAlbastru extends LinearOpMode {
                     if (!gamepad2.dpad_down){
                         contor = false;
                     }
-                    if(gamepad2.dpad_left)
-                    {
-                        HIGH_VELO = 1380;
-                    }
-                    if(gamepad2.dpad_right)
-                    {
-                        HIGH_VELO = 1480;
-                    }
 
 
-                    if(gamepad2.right_trigger> 0) {
+                    if(gamepad2.right_trigger > 0) {
                         ok2 = !ok2;
                     }
                     else{
                         ok2 = false;
                     }
 
-                    if(ok2){
-                        outtake.setVelocity(-480);
-                    }else{
-                        outtake.setVelocity(Math.min(gamepad2.left_trigger*2000, HIGH_VELO));
-                    }
 
                     if(gamepad2.right_bumper) {
                         ok3 = true;
@@ -270,11 +355,16 @@ public class driveAlbastru extends LinearOpMode {
                         ok3 = false;
                     }
 
+                    targetVelo = Math.min(gamepad2.left_trigger*2100, viteza);
+
                     if(ok3){
-                        intake.setPower(-0.8);
+                        intake.setPower(-0.82);
                     }else{
                         intake.setPower(Math.min(gamepad2.right_trigger, 0.9));
                     }
+
+                    if(gamepad2.right_trigger > 0.1)
+                        targetVelo = -300;
 
                     break;
                 case AUTOMATIC_CONTROL:
@@ -290,12 +380,11 @@ public class driveAlbastru extends LinearOpMode {
                     }
                     break;
             }
-            telemetry.addData("velocity", outtake.getVelocity());
-            telemetry.addData("outtake velocity", HIGH_VELO);
-            telemetry.addData("mode", currentMode);
-            telemetry.addData("x", poseEstimate.getX());
-            telemetry.addData("y", poseEstimate.getY());
-            telemetry.addData("heading", Math.toDegrees(poseEstimate.getHeading()));
+            telemetry.addData("", viteza);
+            telemetry.addLine()
+                    .addData("X", poseEstimate.getX())
+                    .addData("Y", poseEstimate.getY())
+                    .addData("angle", Math.toDegrees(poseEstimate.getHeading()));
             telemetry.update();
 
         }
@@ -307,8 +396,7 @@ public class driveAlbastru extends LinearOpMode {
     }
     void resetPositionLine()
     {
-        drive.setPoseEstimate(new Pose2d(63.5,0,3.1415));
+        drive.setPoseEstimate(new Pose2d(63.5,0,Math.PI));
     }
 
 }
-

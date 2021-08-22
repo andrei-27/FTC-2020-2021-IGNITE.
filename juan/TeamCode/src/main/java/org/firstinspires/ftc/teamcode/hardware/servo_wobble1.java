@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class servo_wobble1 {
     public Servo servo = null;
 
-    public static double SERVO_RELEASEE = 0.88;
+    public static double SERVO_RELEASEE = 0.86;
 
     public static double SERVO_CLOSEE = 0.44;
 
-    public static double SERVO_MID = 0.82;
+    public static double SERVO_MID = 0.73;
 
     public servo_wobble1(HardwareMap hwMap) {
         servo = hwMap.get(Servo.class, "servoWobbleBrat");
