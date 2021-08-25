@@ -48,7 +48,7 @@ public class driveAlbastru extends LinearOpMode {
     public static double kV = 1 / TuningController.rpmToTicksPerSecond(TuningController.MOTOR_MAX_RPM);
     public static double kA = 0;
     public static double targetVelo = 0;
-    public static double viteza = 1620;
+    public static double viteza = 1600;
     public static double kStatic = 0;
 
     public static double POWERSHOT_VELO = 1390;
@@ -166,14 +166,11 @@ public class driveAlbastru extends LinearOpMode {
                     {
                         resetPositionLine();
 
-                        DcMotorEx finalOuttake1 = myMotor1;
-                        DcMotorEx finalOuttake2 = myMotor2;
-
                         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(63.5, 0, 3.1415))
                                 .strafeTo(new Vector2d(56.5, -49))
                                 .addTemporalMarker(0.8, () -> {
-                                    finalOuttake1.setVelocity(POWERSHOT_VELO);
-                                    finalOuttake2.setVelocity(POWERSHOT_VELO);
+                                    myMotor1.setVelocity(POWERSHOT_VELO);
+                                    myMotor2.setVelocity(POWERSHOT_VELO);
                                 })
                                 .build();
 
@@ -203,30 +200,30 @@ public class driveAlbastru extends LinearOpMode {
                         sleep(250);
                         out1.open();
                         out2.open();
+
+                        myMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        myMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     }
 
                     if(gamepad1.x && gamepad1.dpad_right)
                     {
                         resetPositionLine();
 
-                        DcMotorEx finalOuttake1 = myMotor1;
-                        DcMotorEx finalOuttake2 = myMotor2;
-
                         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(63.5, 0, Math.PI))
                                 .lineToSplineHeading(new Pose2d(61, -40, Math.toRadians(180-4)))
                                 .addTemporalMarker(0.1, () -> {
-                                    finalOuttake1.setVelocity(-300);
-                                    finalOuttake2.setVelocity(-300);
+                                    myMotor1.setVelocity(-300);
+                                    myMotor2.setVelocity(-300);
                                     out1.close();
                                     out2.close();
                                 })
                                 .addTemporalMarker(0.5, () -> {
-                                    finalOuttake1.setVelocity(0);
-                                    finalOuttake2.setVelocity(0);
+                                    myMotor1.setVelocity(0);
+                                    myMotor2.setVelocity(0);
                                 })
                                 .addTemporalMarker(0.9, () -> {
-                                    finalOuttake1.setVelocity(POWERSHOT_VELO);
-                                    finalOuttake2.setVelocity(POWERSHOT_VELO);
+                                    myMotor1.setVelocity(POWERSHOT_VELO);
+                                    myMotor2.setVelocity(POWERSHOT_VELO);
                                 })
                                 .build();
 
@@ -246,16 +243,49 @@ public class driveAlbastru extends LinearOpMode {
                         drive.followTrajectory(trajectory2);
                         sleep(100);
                         outg.cerc2();
-                        sleep(500);
+                        sleep(600);
                         outg.open();
                         drive.followTrajectory(trajectory3);
                         sleep(100);
                         outg.close();
-                        sleep(1100);
+                        sleep(1150);
                         outg.open();
                         sleep(300);
                         out1.open();
                         out2.open();
+
+                        myMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        myMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    }
+
+                    if(gamepad1.right_trigger > 0.2 && gamepad1.left_trigger > 0.2)
+                    {
+                        resetPositionLine();
+
+                        Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(63.5, 0, Math.PI))
+                                .lineToSplineHeading(new Pose2d(61, -7, Math.toRadians(180-13)))
+                                .addTemporalMarker(0.1, () -> {
+                                    out1.close();
+                                    out2.close();
+                                })
+                                .addTemporalMarker(0.4, () -> {
+                                    myMotor1.setVelocity(1570);
+                                    myMotor2.setVelocity(1570);
+                                })
+                                .build();
+
+
+                        drive.followTrajectory(trajectory1);
+                        sleep(100);
+                        outg.close();
+                        sleep(1150);
+                        outg.open();
+                        sleep(300);
+                        out1.open();
+                        out2.open();
+
+                        myMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        myMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     }
 
                     if(gamepad1.a)
@@ -269,10 +299,10 @@ public class driveAlbastru extends LinearOpMode {
 
                         double unghi = targetAngle - poseEstimate.getHeading();
 
-                        if(unghi > Math.PI)
+                        while(unghi > Math.PI)
                             unghi = unghi - 2*Math.PI;
 
-                        else if(unghi < Math.PI)
+                        while(unghi < -Math.PI)
                             unghi = unghi + 2*Math.PI;
 
                         drive.turnAsync(unghi);

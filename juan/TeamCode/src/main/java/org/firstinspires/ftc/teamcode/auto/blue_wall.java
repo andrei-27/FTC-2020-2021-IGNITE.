@@ -131,7 +131,7 @@ public class blue_wall extends LinearOpMode
 
 
         Trajectory trajectory1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-58, -1.5), Math.toRadians(180-15))
+                .splineTo(new Vector2d(-58, 0), Math.toRadians(180-17))
                 .addTemporalMarker(1.2, () -> {
                     motorOuttake1.setVelocity(HIGH_VELO);
                     motorOuttake2.setVelocity(HIGH_VELO);
@@ -148,15 +148,15 @@ public class blue_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
-                .splineTo(new Vector2d(-10, 0), Math.toRadians(0))
+                .strafeTo(new Vector2d(-10, 0))
                 .addTemporalMarker(0.1, () -> {
                     wob_brat.up();
                     wob_cleste.close();
                 })
                 .build();
 
-        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end(), true)
-                .splineTo(new Vector2d(-73.5, 18), Math.toRadians(180))
+        Trajectory trajectory4 = drive.trajectoryBuilder(trajectory3.end())
+                .splineTo(new Vector2d(-73.5, 18), Math.toRadians(0))
                 .addTemporalMarker(0.25, () -> {
                     plug.down();
                 })
@@ -178,7 +178,7 @@ public class blue_wall extends LinearOpMode
 
 
         Trajectory trajectoryy1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-58, -1.5), Math.toRadians(180-15))
+                .splineTo(new Vector2d(-58, 0), Math.toRadians(180-17))
                 .addTemporalMarker(1.2, () -> {
                     motorOuttake1.setVelocity(HIGH_VELO);
                     motorOuttake2.setVelocity(HIGH_VELO);
@@ -196,8 +196,8 @@ public class blue_wall extends LinearOpMode
 
         Trajectory trajectoryy3 = drive.trajectoryBuilder(trajectoryy2.end())
                 .strafeTo(new Vector2d(-75, 0))
-                .splineToConstantHeading(new Vector2d(-60, 22.5), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-38, 22.5), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-60, 20.5), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-38, 20.5), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -225,7 +225,8 @@ public class blue_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectoryy4 = drive.trajectoryBuilder(trajectoryy3.end(), true)
-                .splineToConstantHeading(new Vector2d(-44, 26), Math.toRadians(0))
+                //.splineToConstantHeading(new Vector2d(-44, 25), Math.toRadians(0))
+                .lineToSplineHeading(new Pose2d(-56.5, 5, Math.toRadians(-9)))
                 .addTemporalMarker(0.02, () -> {
                     out1.close();
                     out2.close();
@@ -252,7 +253,7 @@ public class blue_wall extends LinearOpMode
 
 
         Trajectory trajectoryyy1 = drive.trajectoryBuilder(new Pose2d(), true)
-                .splineTo(new Vector2d(-58, -1.5), Math.toRadians(180-15))
+                .splineTo(new Vector2d(-58, 0), Math.toRadians(180-17))
                 .addTemporalMarker(1.2, () -> {
                     motorOuttake1.setVelocity(HIGH_VELO);
                     motorOuttake2.setVelocity(HIGH_VELO);
@@ -260,7 +261,7 @@ public class blue_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy2 = drive.trajectoryBuilder(trajectoryyy1.end(), true)
-                .splineTo(new Vector2d(-112, 5.5), Math.toRadians(0))
+                .lineToSplineHeading(new Pose2d(-115, 6, Math.toRadians(180)))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
                     motorOuttake1.setVelocity(0);
@@ -271,8 +272,8 @@ public class blue_wall extends LinearOpMode
 
         Trajectory trajectoryyy3 = drive.trajectoryBuilder(trajectoryyy2.end())
                 .strafeTo(new Vector2d(-72, 5))
-                .splineTo(new Vector2d(-63, 24), Math.toRadians(180))
-                .splineToConstantHeading(new Vector2d(-39, 24), Math.toRadians(0),
+                .splineTo(new Vector2d(-63, 20.5), Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-39, 20.5), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -301,7 +302,7 @@ public class blue_wall extends LinearOpMode
 
 
         Trajectory trajectoryyy4 = drive.trajectoryBuilder(trajectoryyy3.end())
-                .splineToConstantHeading(new Vector2d(-42.5, 24), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-52, 24), Math.toRadians(0))
                 .addTemporalMarker(0.02, () -> {
                     out1.close();
                     out2.close();
@@ -314,8 +315,8 @@ public class blue_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy5 = drive.trajectoryBuilder(trajectoryyy4.end())
-                .splineToConstantHeading(new Vector2d(-40, 24), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-21, 24), Math.toRadians(0),
+                .splineToConstantHeading(new Vector2d(-40, 20.5), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(-21, 20.5), Math.toRadians(0),
                         new MinVelocityConstraint(
                                 Arrays.asList(
                                         new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
@@ -330,13 +331,15 @@ public class blue_wall extends LinearOpMode
                 })
                 .addTemporalMarker(0.5, () -> {
                     finalIntake.setPower(0.9);
+                    motorOuttake1.setVelocity(-300);
+                    motorOuttake2.setVelocity(-300);
                     out1.open();
                     out2.open();
                 })
                 .build();
 
         Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy5.end(), true)
-                .lineToSplineHeading(new Pose2d(-54, 7, Math.toRadians(-6)))
+                .lineToSplineHeading(new Pose2d(-56.5, 5, Math.toRadians(-9)))
                 .addTemporalMarker(0.02, () -> {
                     out1.close();
                     out2.close();
@@ -473,7 +476,7 @@ public class blue_wall extends LinearOpMode
                 sleep(420);
 
                 drive.followTrajectory(trajectory3);
-                sleep(13*1000);
+                sleep(11*1000);
                 drive.followTrajectory(trajectory4);
 
             }

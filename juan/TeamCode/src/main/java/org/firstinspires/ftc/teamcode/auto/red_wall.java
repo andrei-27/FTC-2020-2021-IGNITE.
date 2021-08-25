@@ -186,7 +186,7 @@ public class red_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectoryy2 = drive.trajectoryBuilder(trajectoryy1.end(), true)
-                .splineTo(new Vector2d(-92.5, 2.75), Math.toRadians(0))
+                .splineTo(new Vector2d(-92.5, 4), Math.toRadians(0))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
                     motorOuttake1.setVelocity(0);
@@ -228,7 +228,8 @@ public class red_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectoryy4 = drive.trajectoryBuilder(trajectoryy3.end(), true)
-                .splineToConstantHeading(new Vector2d(-52, -17.5), Math.toRadians(0))
+                //.splineToConstantHeading(new Vector2d(-52, -17.5), Math.toRadians(0))
+                .lineToSplineHeading(new Pose2d(-54, -4.5, Math.toRadians(7)))
                 .addTemporalMarker(0.02, () -> {
                     out1.close();
                     out2.close();
@@ -241,7 +242,7 @@ public class red_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectoryy5 = drive.trajectoryBuilder(trajectoryy4.end(), true)
-                .splineTo(new Vector2d(-73, 1), Math.toRadians(180))
+                .strafeTo(new Vector2d(-73, 1))
                 .addTemporalMarker(0.1, () -> {
                     motorOuttake1.setVelocity(0);
                     motorOuttake2.setVelocity(0);
@@ -265,7 +266,7 @@ public class red_wall extends LinearOpMode
                 .build();
 
         Trajectory trajectoryyy2 = drive.trajectoryBuilder(trajectoryyy1.end(), true)
-                .splineTo(new Vector2d(-118, -6.5), Math.toRadians(180))
+                .splineTo(new Vector2d(-119.5, -6.5), Math.toRadians(180))
                 .addTemporalMarker(0.1, () -> {
                     outg.open();
                     motorOuttake1.setVelocity(0);
@@ -335,19 +336,23 @@ public class red_wall extends LinearOpMode
                 })
                 .addTemporalMarker(0.5, () -> {
                     finalIntake.setPower(0.9);
+                    motorOuttake1.setVelocity(-300);
+                    motorOuttake2.setVelocity(-300);
                     out1.open();
                     out2.open();
                 })
                 .build();
 
         Trajectory trajectoryyy6 = drive.trajectoryBuilder(trajectoryyy5.end(), true)
-                .lineToSplineHeading(new Pose2d(-54, -7, Math.toRadians(6)))
+                .lineToSplineHeading(new Pose2d(-54, -4.5, Math.toRadians(7)))
                 .addTemporalMarker(0.02, () -> {
                     out1.close();
                     out2.close();
                     finalIntake.setPower(0);
+                    motorOuttake1.setVelocity(0);
+                    motorOuttake2.setVelocity(0);
                 })
-                .addTemporalMarker(0.25, () -> {
+                .addTemporalMarker(0.38, () -> {
                     motorOuttake1.setVelocity(HIGH_VELO+20);
                     motorOuttake2.setVelocity(HIGH_VELO+20);
                 })
@@ -473,7 +478,7 @@ public class red_wall extends LinearOpMode
                 wob_cleste.open();
                 sleep(500);
                 drive.followTrajectory(trajectory3);
-                sleep(15*1000);
+                sleep(15*1000-500);
                 drive.followTrajectory(trajectory4);
 
             }
@@ -484,7 +489,7 @@ public class red_wall extends LinearOpMode
                 drive.followTrajectory(trajectoryy1);
 
                 outg.close();
-                sleep(900);
+                sleep(1000);
                 outg.open();
 
                 drive.followTrajectory(trajectoryy2);
@@ -495,6 +500,7 @@ public class red_wall extends LinearOpMode
                 sleep(500);
                 drive.followTrajectory(trajectoryy3);
                 sleep(500);
+                sleep(3500);
                 drive.followTrajectory(trajectoryy4);
                 outg.close();
                 sleep(1100);
@@ -506,7 +512,7 @@ public class red_wall extends LinearOpMode
             {
                 drive.followTrajectory(trajectoryyy1);
                 outg.close();
-                sleep(1050);
+                sleep(1000);
                 outg.open();
 
                 drive.followTrajectory(trajectoryyy2);

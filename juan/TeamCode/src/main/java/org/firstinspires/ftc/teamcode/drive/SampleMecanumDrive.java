@@ -192,8 +192,8 @@ public class SampleMecanumDrive extends MecanumDrive {
         turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(heading, 0, 0, 0),
                 new MotionState(heading + angle, 0, 0, 0),
-                MAX_ANG_VEL,
-                MAX_ANG_ACCEL
+                MAX_ANG_VEL/1.8,
+                MAX_ANG_ACCEL/1.8
         );
 
         turnStart = clock.seconds();
